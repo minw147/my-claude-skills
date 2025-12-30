@@ -40,7 +40,7 @@ function Write-Error {
 # Main execution
 Write-Host ""
 Write-Host "==================================================" -ForegroundColor $Magenta
-Write-Host "🚀 Setting up Claude skills with custom skills support..." -ForegroundColor $Magenta
+Write-Host ">>> Setting up Claude skills with custom skills support..." -ForegroundColor $Magenta
 Write-Host "==================================================" -ForegroundColor $Magenta
 
 # Validate custom skills path
@@ -69,7 +69,7 @@ if (!(Test-Path ".claude/skills")) {
 Write-Step "Setting up official Anthropic skills..."
 
 if (!(Test-Path ".claude/skills/.git")) {
-    Write-Host "📥 Cloning official Anthropic skills..." -ForegroundColor $Yellow
+    Write-Host "[DOWNLOAD] Cloning official Anthropic skills..." -ForegroundColor $Yellow
     git clone https://github.com/anthropics/skills.git .claude/skills
     if ($LASTEXITCODE -eq 0) {
         Write-Success "Official skills cloned successfully"
@@ -78,7 +78,7 @@ if (!(Test-Path ".claude/skills/.git")) {
         exit 1
     }
 } else {
-    Write-Host "📁 Official skills already exist, skipping clone..." -ForegroundColor $Gray
+    Write-Host "[SKIP] Official skills already exist, skipping clone..." -ForegroundColor $Gray
 }
 
 # Organize official skills (move from subdirectory)
@@ -100,7 +100,7 @@ if (Test-Path $CustomSkillsPath) {
     } else {
         foreach ($skillDir in $customSkillDirs) {
             $skillName = $skillDir.Name
-            Write-Host "   🔧 Copying skill: $skillName" -ForegroundColor $Gray
+            Write-Host "   [INFO] Copying skill: $skillName" -ForegroundColor $Gray
             Copy-Item -Path $skillDir.FullName -Destination ".claude/skills/" -Recurse -Force
         }
         Write-Success "Custom skills added ($($customSkillDirs.Count) skills)"
@@ -121,7 +121,7 @@ if (!$claudeIgnored) {
     Add-Content -Path ".gitignore" -Value ".claude/"
     Write-Success ".gitignore updated to exclude .claude/"
 } else {
-    Write-Host "📝 .claude/ already in .gitignore" -ForegroundColor $Gray
+    Write-Host "[INFO] .claude/ already in .gitignore" -ForegroundColor $Gray
 }
 
 # Sync skills with Claude
@@ -146,13 +146,13 @@ if ($LASTEXITCODE -eq 0) {
 # Success message
 Write-Host ""
 Write-Host "==================================================" -ForegroundColor $Green
-Write-Success "🎉 CLAUDE SKILLS SETUP COMPLETE!"
+Write-Success "*** CLAUDE SKILLS SETUP COMPLETE! ***"
 Write-Host "==================================================" -ForegroundColor $Green
 Write-Host "Available skills are now active in Cursor for this project." -ForegroundColor $Cyan
 Write-Host ""
-Write-Host "💡 Tips:" -ForegroundColor $Cyan
-Write-Host "   • Test with: Ask Cursor to 'help me create an n8n workflow'" -ForegroundColor White
-Write-Host "   • Update skills: .\update-skills.ps1" -ForegroundColor White
-Write-Host "   • Custom skills path: $CustomSkillsPath" -ForegroundColor White
+Write-Host "[TIPS]:" -ForegroundColor $Cyan
+Write-Host "   - Test with: Ask Cursor to 'help me create an n8n workflow'" -ForegroundColor White
+Write-Host "   - Update skills: .\update-skills.ps1" -ForegroundColor White
+Write-Host "   - Custom skills path: $CustomSkillsPath" -ForegroundColor White
 Write-Host ""
 Write-Host "==================================================" -ForegroundColor $Green
