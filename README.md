@@ -6,7 +6,7 @@ A portable, version-controlled setup for Claude skills in Cursor, including cust
 
 ```bash
 # Clone this repository
-git clone https://github.com/yourusername/my-claude-skills.git claude-skills-setup
+git clone https://github.com/minw147/my-claude-skills.git claude-skills-setup
 
 # Navigate to the directory
 cd claude-skills-setup
@@ -70,6 +70,25 @@ git pull origin main
 # Update official skills (handled automatically by setup script)
 .\setup-claude-skills-with-custom.ps1
 ```
+
+## 🛡️ Reliability Features
+
+### Encoding Protection
+- **`.gitattributes` file** ensures proper line endings for PowerShell scripts
+- **UTF-8 BOM handling** prevents parsing errors during cloning
+- **Cross-platform compatibility** for Windows/Unix environments
+
+### Error Handling
+- **Comprehensive try-catch blocks** for all critical operations
+- **Detailed error messages** with troubleshooting guidance
+- **Graceful degradation** when custom skills are unavailable
+- **Validation checks** before executing operations
+
+### Robustness Improvements
+- **PowerShell best practices** with `CmdletBinding` and parameter validation
+- **Path validation** and existence checks
+- **Git operation verification** with exit code checking
+- **Fallback behaviors** for various failure scenarios
 
 ## 🖥️ Using on Multiple Computers
 
