@@ -1,0 +1,23 @@
+# Generated Claude skills directory (don't commit official skills)
+.claude/
+
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# IDE files (optional - uncomment if you don't want to share)
+# .vscode/
+# .idea/

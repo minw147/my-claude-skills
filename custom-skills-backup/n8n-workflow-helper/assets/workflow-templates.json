@@ -1,0 +1,223 @@
+{
+  "ai_assistant_template": {
+    "name": "AI Assistant Backend Template",
+    "description": "Complete template for building AI assistants with memory and tools",
+    "nodes": [
+      {
+        "type": "n8n-nodes-base.webhook",
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "chat",
+          "responseMode": "responseNode"
+        },
+        "position": [-1200, 160]
+      },
+      {
+        "type": "n8n-nodes-base.if",
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{ $json.body.audio ? true : false }}",
+                "value2": true
+              }
+            ]
+          }
+        },
+        "position": [-976, 160]
+      },
+      {
+        "type": "n8n-nodes-base.httpRequest",
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+          "contentType": "multipart-form-data",
+          "bodyParameters": {
+            "parameters": [
+              {"name": "model", "value": "whisper-large-v3-turbo"},
+              {"parameterType": "formBinaryData", "name": "file", "inputDataFieldName": "binary"}
+            ]
+          }
+        },
+        "position": [-432, 48]
+      },
+      {
+        "type": "n8n-nodes-base.switch",
+        "parameters": {
+          "dataType": "string",
+          "value1": "={{ $('Webhook').item.json.body.model }}",
+          "rules": {
+            "rules": [
+              {"value2": "pro"},
+              {"value2": "flash", "output": 1}
+            ]
+          }
+        },
+        "position": [-48, 160]
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.text || $json.body?.message || \"No input found\" }}",
+          "options": {
+            "systemMessage": "# AI Assistant System Prompt\n\nConfigure your personality and capabilities here."
+          }
+        },
+        "position": [224, 336]
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "parameters": {
+          "modelName": "models/gemini-2.5-flash-lite-preview-06-17"
+        },
+        "position": [240, 512]
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "parameters": {
+          "modelName": "models/gemini-2.5-pro-preview-06-17"
+        },
+        "position": [208, 160]
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "={{ $('Webhook').item.json.body.sessionId }}",
+          "contextWindowLength": 10
+        },
+        "position": [304, 208]
+      }
+    ],
+    "connections": {
+      "Webhook": {"main": [["Check Audio", "main", 0]]},
+      "Check Audio": {
+        "main": [
+          ["Groq Transcription", "main", 0],
+          ["Model Switch", "main", 0]
+        ]
+      },
+      "Groq Transcription": {"main": [["Model Switch", "main", 0]]},
+      "Model Switch": {
+        "main": [
+          ["Agent (Pro)", "main", 0],
+          ["Agent (Flash)", "main", 0]
+        ]
+      },
+      "Window Buffer Memory": {
+        "ai_memory": [
+          ["Agent (Flash)", "ai_memory", 0],
+          ["Agent (Pro)", "ai_memory", 0]
+        ]
+      },
+      "Gemini Pro": {"ai_languageModel": [["Agent (Pro)", "ai_languageModel", 0]]},
+      "Gemini Flash": {"ai_languageModel": [["Agent (Flash)", "ai_languageModel", 0]]}
+    }
+  },
+  "backup_system_template": {
+    "name": "Automated Backup System Template",
+    "description": "Template for creating self-maintaining workflow backup systems",
+    "nodes": [
+      {
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "parameters": {
+          "rule": {
+            "interval": [{
+              "field": "cronExpression",
+              "expression": "0 4 * * 0"
+            }]
+          }
+        },
+        "position": [0, 0]
+      },
+      {
+        "type": "n8n-nodes-base.n8n",
+        "parameters": {
+          "operation": "getAll",
+          "filters": {}
+        },
+        "position": [224, 0]
+      },
+      {
+        "type": "n8n-nodes-base.splitInBatches",
+        "parameters": {
+          "batchSize": 1
+        },
+        "position": [448, 0]
+      },
+      {
+        "type": "n8n-nodes-base.n8n",
+        "parameters": {
+          "operation": "get",
+          "workflowId": "={{ $json.id }}"
+        },
+        "position": [672, 0]
+      }
+    ],
+    "connections": {
+      "Every Sunday at 4AM": {"main": [["n8n (List All)", "main", 0]]},
+      "n8n (List All)": {"main": [["Process One by One", "main", 0]]},
+      "Process One by One": {"main": [["n8n (Get JSON)", "main", 0]]}
+    }
+  },
+  "memory_consolidator_template": {
+    "name": "Memory Consolidation Template",
+    "description": "Template for processing daily conversations into structured knowledge",
+    "nodes": [
+      {
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "parameters": {
+          "rule": {
+            "interval": [{
+              "field": "cronExpression",
+              "expression": "0 3 * * *"
+            }]
+          }
+        },
+        "position": [0, 0]
+      },
+      {
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.output }}",
+          "options": {
+            "systemMessage": "Summarize these daily conversations into a structured Markdown format with key insights and action items."
+          }
+        },
+        "position": [224, 0]
+      }
+    ],
+    "connections": {
+      "Every Night at 3AM": {"main": [["AI Summarizer", "main", 0]]}
+    }
+  },
+  "error_handler_template": {
+    "name": "Global Error Handler Template",
+    "description": "Template for comprehensive error handling and logging",
+    "nodes": [
+      {
+        "type": "n8n-nodes-base.errorTrigger",
+        "parameters": {},
+        "position": [400, 300]
+      },
+      {
+        "type": "n8n-nodes-base.set",
+        "parameters": {
+          "values": {
+            "string": [
+              {"name": "error_summary", "value": "={{ $json.execution.error.message }}"},
+              {"name": "workflow_name", "value": "={{ $json.workflow.name }}"},
+              {"name": "execution_id", "value": "={{ $json.execution.id }}"}
+            ]
+          }
+        },
+        "position": [620, 300]
+      }
+    ],
+    "connections": {
+      "Error Trigger": {"main": [["Format Error Info", "main", 0]]}
+    }
+  }
+}
