@@ -52,6 +52,12 @@ Usage notes:
 </skill>
 
 <skill>
+<name>eye-tracking-analysis</name>
+<description>Comprehensive eye-tracking analysis tool for predicting visual attention patterns, heat maps, AOI analysis, and professional reports. Use when analyzing website landing pages, images, or specific UI elements for user attention and visual hierarchy.</description>
+<location>project</location>
+</skill>
+
+<skill>
 <name>frontend-design</name>
 <description>Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics.</description>
 <location>project</location>
