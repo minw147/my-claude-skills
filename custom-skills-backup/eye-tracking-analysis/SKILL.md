@@ -108,18 +108,24 @@ Provide a Regions Report with detailed analysis.
 1. **Visual Heat Map**: Color-coded probability zones
 2. **Heat Map Analysis**: Detailed description of attention patterns
 3. **Sequence Report**: Numbered fixation order (①②③④)
-4. **Regions of Interest**: Attention percentages for marked areas (if provided)
+4. **Regions of Interest**: Attention percentages for marked areas (AOI)
 5. **Recommendations**: Specific improvements with expected impact
+6. **HTML/PDF Export**: Professional visual reports for sharing
 
 ## Technical Implementation
 
+### Prerequisites & Dependencies
+The skill requires the following Python libraries:
+```bash
+pip install opencv-contrib-python selenium webdriver-manager markdown xhtml2pdf
+```
+
 ### Automatic Processing Workflow
-1. **URL Input**: Browser automation captures viewport screenshots
-2. **Region Detection**: AI vision identifies user-marked areas (optional)
-3. **Saliency Analysis**: Spectral Residual algorithm generates heat maps
+1. **URL Input**: `capture_url.py` uses Selenium to capture 1200x800 viewport screenshots
+2. **Region Detection**: `detect_marked_regions.py` identifies user-marked areas or accepts JSON AOIs
+3. **Saliency Analysis**: `generate_saliency_analysis.py` (Spectral Residual) generates heat maps
 4. **Metrics Calculation**: Attention share percentages for all zones
-5. **Report Generation**: Professional analysis with visual overlays
-6. **PDF Export**: Automated conversion to shareable reports
+5. **Report Generation**: `convert_markdown_to_pdf.py` creates both **HTML** and **PDF** reports
 
 ### Accuracy & Methodology
 - **85-90% prediction accuracy** vs. real eye-tracking studies
@@ -189,11 +195,22 @@ Integrates with `n8n-workflow-helper` for automated eye-tracking analysis pipeli
 - **Screenshot quality**: Ensure full viewport capture for accurate analysis
 - **Marked regions**: Use clear, high-contrast markings for best detection
 
+### AOI (Area of Interest) JSON Format
+When specifying manual regions for analysis, use the following structure:
+```json
+[
+  { "name": "CTA Button", "box": [100, 200, 150, 50] },
+  { "name": "Headline", "box": [50, 50, 400, 100] }
+]
+```
+*(Format: `[x, y, width, height]` in pixels)*
+
 ### Best Practices
 - **Focus on landing pages**: Most effective for above-the-fold content
-- **Mark key elements**: Circle CTAs, headlines, and important features
+- **Mark key elements**: Use the JSON format or circle CTAs for precise AOI metrics
 - **Compare variants**: Use for A/B testing and design iterations
 - **Review blind spots**: Identify elements users are likely to miss
+- **HTML/PDF Sharing**: Use the generated `.html` version for web presentations and `.pdf` for documents
 
 ## Resources
 

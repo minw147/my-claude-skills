@@ -183,6 +183,12 @@ def convert_md_to_pdf(md_file: str, pdf_file: str = None, css_file: str = None) 
         </html>
         """
 
+        # Save HTML file as well
+        html_file = os.path.splitext(pdf_file)[0] + '.html'
+        with open(html_file, 'w', encoding='utf-8') as f:
+            f.write(full_html)
+        print(f"HTML report saved to: {os.path.abspath(html_file)}")
+
         # Convert HTML to PDF
         if USE_WEASYPRINT:
             HTML(string=full_html).write_pdf(pdf_file)
