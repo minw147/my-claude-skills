@@ -191,9 +191,9 @@ Integrates with `n8n-workflow-helper` for automated eye-tracking analysis pipeli
 ## Troubleshooting
 
 ### Common Issues
+- **Missing Legend**: Ensure `heatmap_legend.png` exists in the `assets/` directory. The script will automatically copy it to your output folder.
+- **Image Overlap**: If images appear side-by-side in custom reports, use an explicit blank line between `![]()` tags in the markdown source.
 - **Low accuracy regions**: Small elements or low-contrast areas may show reduced attention
-- **Screenshot quality**: Ensure full viewport capture for accurate analysis
-- **Marked regions**: Use clear, high-contrast markings for best detection
 
 ### AOI (Area of Interest) JSON Format
 When specifying manual regions for analysis, use the following structure:
@@ -209,8 +209,9 @@ When specifying manual regions for analysis, use the following structure:
 - **Focus on landing pages**: Most effective for above-the-fold content
 - **Mark key elements**: Use the JSON format or circle CTAs for precise AOI metrics
 - **Compare variants**: Use for A/B testing and design iterations
-- **Review blind spots**: Identify elements users are likely to miss
+- **Check Blind Spots**: Identify elements users are likely to miss
 - **HTML/PDF Sharing**: Use the generated `.html` version for web presentations and `.pdf` for documents
+- **Layout Management**: Always use a blank line between multiple images in Markdown to ensure proper centering and block-level rendering in PDF exports.
 
 ## Resources
 

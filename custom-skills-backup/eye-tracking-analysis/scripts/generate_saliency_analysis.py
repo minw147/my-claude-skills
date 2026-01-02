@@ -293,7 +293,11 @@ def generate_saliency_analysis(image_path, goal_boxes=None, output_dir=None, aut
 
     # Copy legend to output directory if it doesn't exist
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Look in the scripts directory first, then assets directory
     source_legend = os.path.join(script_dir, "heatmap_legend.png")
+    if not os.path.exists(source_legend):
+        source_legend = os.path.join(os.path.dirname(script_dir), "assets", "heatmap_legend.png")
+        
     if os.path.exists(source_legend) and not os.path.exists(legend_path):
         shutil.copy(source_legend, legend_path)
         print(f"Copied legend to: {legend_path}")

@@ -151,9 +151,10 @@ def convert_md_to_pdf(md_file: str, pdf_file: str = None, css_file: str = None) 
                 color: white;
             }
             img {
+                display: block;
                 max-width: 100%;
                 height: auto;
-                margin: 20px 0;
+                margin: 20px auto;
             }
             ul, ol {
                 margin: 15px 0;
