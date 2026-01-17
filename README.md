@@ -4,14 +4,34 @@ A portable, version-controlled setup for Claude skills in Cursor, including cust
 
 ## 🚀 Quick Setup (Any Computer)
 
-```bash
-# Clone this repository
-git clone https://github.com/minw147/my-claude-skills.git claude-skills-setup
+### For a New Project
 
-# Navigate to the directory
-cd claude-skills-setup
+You have three options:
 
-# Run the automated setup
+#### Option 1: Clone Repo into Project (Simplest)
+```powershell
+# In your project directory
+git clone https://github.com/minw147/my-claude-skills.git .claude-skills
+cd .claude-skills
+.\setup-claude-skills-with-custom.ps1
+cd ..
+```
+
+#### Option 2: Point to Central Location (Recommended)
+```powershell
+# First, clone repo to a central location (one-time)
+git clone https://github.com/minw147/my-claude-skills.git C:\dev\my-claude-skills
+
+# In your new project directory
+Copy-Item "C:\dev\my-claude-skills\setup-claude-skills-with-custom.ps1" -Destination "." -Force
+.\setup-claude-skills-with-custom.ps1 -AllSkillsPath "C:\dev\my-claude-skills\all-skills"
+```
+
+#### Option 3: Copy Script + Skills (Portable)
+```powershell
+# In your new project directory
+Copy-Item "C:\dev\my-claude-skills\setup-claude-skills-with-custom.ps1" -Destination "." -Force
+Copy-Item "C:\dev\my-claude-skills\all-skills" -Destination "." -Recurse -Force
 .\setup-claude-skills-with-custom.ps1
 ```
 
@@ -58,15 +78,20 @@ my-claude-skills/
 
 ### `.claude/skills/` (Working Directory - Ignored by Git)
 - **Purpose:** Where Cursor reads skills from
-- **Location:** Created in your project directory
+- **Location:** Created in your project directory (not in this repo)
 - **Status:** ❌ Ignored by Git (in `.gitignore`)
 - **Contains:** Copy of skills from `all-skills/`
-- **When created:** When you run `setup-claude-skills-with-custom.ps1`
+- **When created:** When you run `setup-claude-skills-with-custom.ps1` in your project
 
 **Workflow:**
-1. Skills are stored in `all-skills/` (committed to repo)
-2. Setup script copies them to `.claude/skills/` (working directory)
+1. Skills are stored in `all-skills/` (in this repository)
+2. Setup script copies them to `.claude/skills/` (in your project directory)
 3. Cursor reads from `.claude/skills/` to use the skills
+4. `openskills sync` generates `AGENTS.md` based on `.claude/skills/`
+
+**Note:** You don't need to clone this entire repo into each project. You can:
+- Clone once to a central location, then point the script to it
+- Or copy just the script + `all-skills/` folder to each project
 
 ## 🎯 What Gets Installed
 
