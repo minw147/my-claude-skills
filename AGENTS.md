@@ -28,6 +28,12 @@ Usage notes:
 </skill>
 
 <skill>
+<name>brainstorming</name>
+<description>"You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."</description>
+<location>project</location>
+</skill>
+
+<skill>
 <name>brand-guidelines</name>
 <description>Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply.</description>
 <location>project</location>
@@ -36,6 +42,12 @@ Usage notes:
 <skill>
 <name>canvas-design</name>
 <description>Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>dispatching-parallel-agents</name>
+<description>Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies</description>
 <location>project</location>
 </skill>
 
@@ -52,8 +64,20 @@ Usage notes:
 </skill>
 
 <skill>
+<name>executing-plans</name>
+<description>Use when you have a written implementation plan to execute in a separate session with review checkpoints</description>
+<location>project</location>
+</skill>
+
+<skill>
 <name>eye-tracking-analysis</name>
 <description>Comprehensive eye-tracking analysis tool for predicting visual attention patterns, heat maps, AOI analysis, and professional reports. Use when analyzing website landing pages, images, or specific UI elements for user attention and visual hierarchy.</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>finishing-a-development-branch</name>
+<description>Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup</description>
 <location>project</location>
 </skill>
 
@@ -130,6 +154,18 @@ Usage notes:
 </skill>
 
 <skill>
+<name>receiving-code-review</name>
+<description>Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>requesting-code-review</name>
+<description>Use when completing tasks, implementing major features, or before merging to verify work meets requirements</description>
+<location>project</location>
+</skill>
+
+<skill>
 <name>skill-creator</name>
 <description>Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.</description>
 <location>project</location>
@@ -142,14 +178,50 @@ Usage notes:
 </skill>
 
 <skill>
+<name>subagent-driven-development</name>
+<description>Use when executing implementation plans with independent tasks in the current session</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>systematic-debugging</name>
+<description>Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes</description>
+<location>project</location>
+</skill>
+
+<skill>
 <name>template</name>
 <description>Replace with description of the skill and when Claude should use it.</description>
 <location>project</location>
 </skill>
 
 <skill>
+<name>test-driven-development</name>
+<description>Use when implementing any feature or bugfix, before writing implementation code</description>
+<location>project</location>
+</skill>
+
+<skill>
 <name>theme-factory</name>
 <description>Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly.</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>using-git-worktrees</name>
+<description>Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>using-superpowers</name>
+<description>Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>verification-before-completion</name>
+<description>Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always</description>
 <location>project</location>
 </skill>
 
@@ -162,6 +234,18 @@ Usage notes:
 <skill>
 <name>webapp-testing</name>
 <description>Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>writing-plans</name>
+<description>Use when you have a spec or requirements for a multi-step task, before touching code</description>
+<location>project</location>
+</skill>
+
+<skill>
+<name>writing-skills</name>
+<description>Use when creating new skills, editing existing skills, or verifying skills work before deployment</description>
 <location>project</location>
 </skill>
 

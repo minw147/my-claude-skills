@@ -23,14 +23,28 @@ cd claude-skills-setup
 my-claude-skills/
 ├── setup-claude-skills-with-custom.ps1    # 🚀 Main setup script
 ├── custom-skills-backup/                  # 🎯 Your custom skills
+│   ├── brainstorming/                    # Design refinement before creative work
+│   ├── dispatching-parallel-agents/      # Concurrent subagent workflows
+│   ├── executing-plans/                  # Batch execution with checkpoints
 │   ├── eye-tracking-analysis/            # Eye-tracking analysis tool
+│   ├── finishing-a-development-branch/   # Merge/PR decision workflow
 │   ├── n8n-code-javascript/              # n8n JavaScript code guide
 │   ├── n8n-code-python/                   # n8n Python code guide
 │   ├── n8n-expression-syntax/            # n8n expression syntax
 │   ├── n8n-mcp-tools-expert/             # n8n MCP tools expert
 │   ├── n8n-node-configuration/           # n8n node configuration
 │   ├── n8n-validation-expert/            # n8n validation expert
-│   └── n8n-workflow-patterns/            # n8n workflow patterns
+│   ├── n8n-workflow-patterns/            # n8n workflow patterns
+│   ├── receiving-code-review/            # Responding to feedback
+│   ├── requesting-code-review/           # Pre-review checklist
+│   ├── subagent-driven-development/      # Fast iteration with two-stage review
+│   ├── systematic-debugging/             # 4-phase root cause process
+│   ├── test-driven-development/          # RED-GREEN-REFACTOR cycle
+│   ├── using-git-worktrees/              # Parallel development branches
+│   ├── using-superpowers/                # Introduction to skills system
+│   ├── verification-before-completion/   # Ensure it's actually fixed
+│   ├── writing-plans/                    # Detailed implementation plans
+│   └── writing-skills/                   # Create new skills best practices
 ├── create_new_skill.ps1                   # 🛠️  Create new skills
 ├── update-skills.ps1                      # 🔄 Update existing skills
 ├── README.md                              # 📖 This file
@@ -49,13 +63,8 @@ my-claude-skills/
 
 ### Custom Skills (Included)
 - **eye-tracking-analysis** - Eye-tracking analysis tool for visual attention patterns
-- **n8n-code-javascript** - JavaScript code in n8n Code nodes
-- **n8n-code-python** - Python code in n8n Code nodes
-- **n8n-expression-syntax** - n8n expression syntax and validation
-- **n8n-mcp-tools-expert** - Expert guide for n8n-mcp MCP tools
-- **n8n-node-configuration** - Operation-aware node configuration guidance
-- **n8n-validation-expert** - Validation error interpretation and fixing
-- **n8n-workflow-patterns** - Proven workflow architectural patterns
+- **n8n Skills Suite** (7 skills) - Expert guidance for building production-ready n8n workflows
+- **Superpowers Skills Suite** (14 skills) - Complete software development workflow for coding agents
 
 ## 🔧 Development Workflow
 
@@ -152,6 +161,39 @@ git pull
 - Validation error interpretation and fixing
 - Operation-aware node configuration
 - Production-tested Code node patterns
+
+### Superpowers Skills Suite (14 Complementary Skills)
+**Purpose:** Complete software development workflow for coding agents, built on composable skills that ensure systematic, test-driven development
+
+**Testing:**
+- **test-driven-development** - RED-GREEN-REFACTOR cycle with testing anti-patterns reference
+
+**Debugging:**
+- **systematic-debugging** - 4-phase root cause process with root-cause-tracing, defense-in-depth, and condition-based-waiting techniques
+- **verification-before-completion** - Ensure it's actually fixed before claiming success
+
+**Collaboration:**
+- **brainstorming** - Socratic design refinement before creative work
+- **writing-plans** - Detailed implementation plans with bite-sized tasks
+- **executing-plans** - Batch execution with review checkpoints
+- **dispatching-parallel-agents** - Concurrent subagent workflows for independent tasks
+- **requesting-code-review** - Pre-review checklist before merging
+- **receiving-code-review** - Responding to feedback with technical rigor
+- **using-git-worktrees** - Parallel development branches with isolation
+- **finishing-a-development-branch** - Merge/PR decision workflow
+- **subagent-driven-development** - Fast iteration with two-stage review (spec compliance, then code quality)
+
+**Meta:**
+- **writing-skills** - Create new skills following best practices with testing methodology
+- **using-superpowers** - Introduction to the skills system and how to find/use skills
+
+**Features:**
+- Test-Driven Development (TDD) enforcement
+- Systematic debugging over ad-hoc guessing
+- Complexity reduction and simplicity focus
+- Evidence-based verification before assertions
+- Mandatory workflows, not suggestions
+- Skills trigger automatically based on context
 
 ## 🔒 Security & Git
 
