@@ -23,7 +23,14 @@ cd claude-skills-setup
 my-claude-skills/
 ├── setup-claude-skills-with-custom.ps1    # 🚀 Main setup script
 ├── custom-skills-backup/                  # 🎯 Your custom skills
-│   └── n8n-workflow-helper/              # n8n automation helper
+│   ├── eye-tracking-analysis/            # Eye-tracking analysis tool
+│   ├── n8n-code-javascript/              # n8n JavaScript code guide
+│   ├── n8n-code-python/                   # n8n Python code guide
+│   ├── n8n-expression-syntax/            # n8n expression syntax
+│   ├── n8n-mcp-tools-expert/             # n8n MCP tools expert
+│   ├── n8n-node-configuration/           # n8n node configuration
+│   ├── n8n-validation-expert/            # n8n validation expert
+│   └── n8n-workflow-patterns/            # n8n workflow patterns
 ├── create_new_skill.ps1                   # 🛠️  Create new skills
 ├── update-skills.ps1                      # 🔄 Update existing skills
 ├── README.md                              # 📖 This file
@@ -41,7 +48,14 @@ my-claude-skills/
 - And 14+ more official skills from Anthropic
 
 ### Custom Skills (Included)
-- **n8n-workflow-helper** - Comprehensive n8n automation guidance
+- **eye-tracking-analysis** - Eye-tracking analysis tool for visual attention patterns
+- **n8n-code-javascript** - JavaScript code in n8n Code nodes
+- **n8n-code-python** - Python code in n8n Code nodes
+- **n8n-expression-syntax** - n8n expression syntax and validation
+- **n8n-mcp-tools-expert** - Expert guide for n8n-mcp MCP tools
+- **n8n-node-configuration** - Operation-aware node configuration guidance
+- **n8n-validation-expert** - Validation error interpretation and fixing
+- **n8n-workflow-patterns** - Proven workflow architectural patterns
 
 ## 🔧 Development Workflow
 
@@ -110,14 +124,34 @@ git pull
 
 ## 📋 Included Custom Skills
 
-### n8n-workflow-helper
-**Purpose:** Comprehensive guidance for n8n automation workflows
+### eye-tracking-analysis
+**Purpose:** AI-powered eye-tracking analysis using Spectral Residual Saliency methodology
 **Features:**
-- AI Agent integration patterns
-- Memory management strategies
-- Webhook best practices
-- Error handling workflows
-- Backup automation patterns
+- Heat map generation with color-coded attention zones
+- Fixation sequence prediction
+- AOI (Areas of Interest) analysis
+- Website landing page analysis
+- Professional report generation with PDF export
+
+### n8n Skills Suite (7 Complementary Skills)
+**Purpose:** Expert guidance for building production-ready n8n workflows using n8n-mcp MCP server
+
+**Skills:**
+1. **n8n-expression-syntax** - Validate n8n expression syntax and fix common errors
+2. **n8n-mcp-tools-expert** - Expert guide for using n8n-mcp MCP tools effectively (HIGHEST PRIORITY)
+3. **n8n-workflow-patterns** - Proven workflow architectural patterns from real n8n workflows
+4. **n8n-validation-expert** - Interpret validation errors and guide fixing them
+5. **n8n-node-configuration** - Operation-aware node configuration guidance
+6. **n8n-code-javascript** - Write JavaScript code in n8n Code nodes
+7. **n8n-code-python** - Write Python code in n8n Code nodes
+
+**Features:**
+- Correct n8n expression syntax ({{}} patterns)
+- Effective use of n8n-mcp tools
+- Proven workflow patterns from 2,653+ templates
+- Validation error interpretation and fixing
+- Operation-aware node configuration
+- Production-tested Code node patterns
 
 ## 🔒 Security & Git
 

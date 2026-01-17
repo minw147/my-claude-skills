@@ -1,2 +1,0 @@
-﻿# Example asset file for n8n-workflow-helper
-# This could be a template, configuration file, etc.
