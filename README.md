@@ -22,30 +22,28 @@ cd claude-skills-setup
 ```
 my-claude-skills/
 ├── setup-claude-skills-with-custom.ps1    # 🚀 Main setup script
-├── custom-skills-backup/                  # 🎯 Your custom skills
-│   ├── brainstorming/                    # Design refinement before creative work
-│   ├── dispatching-parallel-agents/      # Concurrent subagent workflows
-│   ├── executing-plans/                  # Batch execution with checkpoints
-│   ├── eye-tracking-analysis/            # Eye-tracking analysis tool
-│   ├── finishing-a-development-branch/   # Merge/PR decision workflow
-│   ├── n8n-code-javascript/              # n8n JavaScript code guide
-│   ├── n8n-code-python/                   # n8n Python code guide
-│   ├── n8n-expression-syntax/            # n8n expression syntax
-│   ├── n8n-mcp-tools-expert/             # n8n MCP tools expert
-│   ├── n8n-node-configuration/           # n8n node configuration
-│   ├── n8n-validation-expert/            # n8n validation expert
-│   ├── n8n-workflow-patterns/            # n8n workflow patterns
-│   ├── receiving-code-review/            # Responding to feedback
-│   ├── requesting-code-review/           # Pre-review checklist
-│   ├── subagent-driven-development/      # Fast iteration with two-stage review
-│   ├── systematic-debugging/             # 4-phase root cause process
-│   ├── test-driven-development/          # RED-GREEN-REFACTOR cycle
-│   ├── using-git-worktrees/              # Parallel development branches
-│   ├── using-superpowers/                # Introduction to skills system
-│   ├── verification-before-completion/   # Ensure it's actually fixed
-│   ├── writing-plans/                    # Detailed implementation plans
-│   └── writing-skills/                   # Create new skills best practices
-├── create_new_skill.ps1                   # 🛠️  Create new skills
+├── all-skills/                            # 🎯 All skills (official + custom)
+│   ├── algorithmic-art/                     # Official: Algorithmic art creation
+│   ├── brainstorming/                    # Custom: Design refinement
+│   ├── brand-guidelines/                 # Official: Brand styling
+│   ├── canvas-design/                    # Official: Visual design
+│   ├── docx/                             # Official: Word documents
+│   ├── eye-tracking-analysis/            # Custom: Eye-tracking analysis
+│   ├── n8n-code-javascript/             # Custom: n8n JavaScript
+│   ├── n8n-code-python/                  # Custom: n8n Python
+│   ├── n8n-expression-syntax/            # Custom: n8n expressions
+│   ├── n8n-mcp-tools-expert/             # Custom: n8n MCP tools
+│   ├── n8n-node-configuration/           # Custom: n8n node config
+│   ├── n8n-validation-expert/            # Custom: n8n validation
+│   ├── n8n-workflow-patterns/            # Custom: n8n patterns
+│   ├── pdf/                              # Official: PDF manipulation
+│   ├── pptx/                             # Official: PowerPoint
+│   ├── systematic-debugging/             # Custom: Debugging workflow
+│   ├── test-driven-development/          # Custom: TDD workflow
+│   ├── xlsx/                             # Official: Excel/spreadsheets
+│   └── ... (39 total skills)
+├── custom-skills-backup/                  # 📦 Legacy backup (can be removed)
+├── create_new_skill.ps1                  # 🛠️  Create new skills
 ├── update-skills.ps1                      # 🔄 Update existing skills
 ├── README.md                              # 📖 This file
 └── .gitignore                            # 🚫 Ignore generated files
@@ -61,10 +59,15 @@ my-claude-skills/
 - **frontend-design** - Web UI components
 - And 14+ more official skills from Anthropic
 
-### Custom Skills (Included)
-- **eye-tracking-analysis** - Eye-tracking analysis tool for visual attention patterns
-- **n8n Skills Suite** (7 skills) - Expert guidance for building production-ready n8n workflows
-- **Superpowers Skills Suite** (14 skills) - Complete software development workflow for coding agents
+### All Skills (Included - Official + Custom)
+This repository includes **all 39 skills** in one place:
+- **Official Anthropic Skills** (17 skills) - xlsx, docx, pdf, pptx, frontend-design, algorithmic-art, and more
+- **Custom Skills** (22 skills):
+  - **eye-tracking-analysis** - Eye-tracking analysis tool for visual attention patterns
+  - **n8n Skills Suite** (7 skills) - Expert guidance for building production-ready n8n workflows
+  - **Superpowers Skills Suite** (14 skills) - Complete software development workflow for coding agents
+
+**Benefits:** Single source of truth, no need to clone multiple repositories, simpler setup!
 
 ## 🔧 Development Workflow
 
@@ -87,12 +90,14 @@ git push
 
 ### Updating Skills
 ```bash
-# Pull latest changes
+# Pull latest changes from this repository
 git pull origin main
 
-# Update official skills (handled automatically by setup script)
+# Re-run setup to get updated skills
 .\setup-claude-skills-with-custom.ps1
 ```
+
+**Note:** To update official Anthropic skills, you'll need to manually pull from their repository and copy to `all-skills/`, or wait for this repository to be updated.
 
 ## 🛡️ Reliability Features
 
@@ -215,6 +220,36 @@ git pull
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
    ```
 2. Install OpenSkills CLI: `npm install -g openskills`
+
+### Skills Not Installed
+**Problem:** Script runs but skills don't appear in AGENTS.md
+
+**Cause:** The script looks for `all-skills` folder in the same directory as the script. If you only copied the script file, the folder isn't there.
+
+**Solutions:**
+
+1. **Clone the entire repository (Recommended):**
+   ```powershell
+   # Clone the repository
+   git clone https://github.com/minw147/my-claude-skills.git
+   cd my-claude-skills
+   # Run the script (it will find all-skills automatically)
+   .\setup-claude-skills-with-custom.ps1
+   ```
+
+2. **Point to a different location:**
+   ```powershell
+   .\setup-claude-skills-with-custom.ps1 -AllSkillsPath "C:\path\to\all-skills"
+   ```
+
+**Verify installation:**
+```powershell
+# Check if skills are in .claude/skills
+Get-ChildItem ".claude\skills" -Directory | Measure-Object
+
+# Re-sync if needed
+openskills sync --yes
+```
 
 ### Skills Not Recognized
 1. Run: `openskills sync --yes`
