@@ -43,10 +43,30 @@ my-claude-skills/
 │   ├── xlsx/                             # Official: Excel/spreadsheets
 │   └── ... (39 total skills)
 ├── create_new_skill.ps1                  # 🛠️  Create new skills
-├── update-skills.ps1                      # 🔄 Update existing skills
 ├── README.md                              # 📖 This file
 └── .gitignore                            # 🚫 Ignore generated files
 ```
+
+## 📂 Folder Structure Explained
+
+### `all-skills/` (Source - Committed to Repo)
+- **Purpose:** Source of truth for all skills
+- **Location:** In the repository root
+- **Status:** ✅ Committed to Git
+- **Contains:** All 39 skills (official + custom)
+- **When to modify:** When adding/updating skills
+
+### `.claude/skills/` (Working Directory - Ignored by Git)
+- **Purpose:** Where Cursor reads skills from
+- **Location:** Created in your project directory
+- **Status:** ❌ Ignored by Git (in `.gitignore`)
+- **Contains:** Copy of skills from `all-skills/`
+- **When created:** When you run `setup-claude-skills-with-custom.ps1`
+
+**Workflow:**
+1. Skills are stored in `all-skills/` (committed to repo)
+2. Setup script copies them to `.claude/skills/` (working directory)
+3. Cursor reads from `.claude/skills/` to use the skills
 
 ## 🎯 What Gets Installed
 
@@ -96,7 +116,7 @@ git pull origin main
 .\setup-claude-skills-with-custom.ps1
 ```
 
-**Note:** To update official Anthropic skills, you'll need to manually pull from their repository and copy to `all-skills/`, or wait for this repository to be updated.
+**Note:** The setup script will copy all skills from `all-skills/` to `.claude/skills/`. To update official Anthropic skills, manually pull from their repository and copy to `all-skills/`, then commit and push.
 
 ## 🛡️ Reliability Features
 
