@@ -1,2 +1,0 @@
-﻿# Example asset file for eye-tracking-analysis
-# This could be a template, configuration file, etc.

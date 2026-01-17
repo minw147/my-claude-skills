@@ -42,7 +42,6 @@ my-claude-skills/
 │   ├── test-driven-development/          # Custom: TDD workflow
 │   ├── xlsx/                             # Official: Excel/spreadsheets
 │   └── ... (39 total skills)
-├── custom-skills-backup/                  # 📦 Legacy backup (can be removed)
 ├── create_new_skill.ps1                  # 🛠️  Create new skills
 ├── update-skills.ps1                      # 🔄 Update existing skills
 ├── README.md                              # 📖 This file
@@ -269,8 +268,8 @@ openskills sync --yes
 4. Update this README
 
 ### Repository Structure
-- Keep official skills out (they're downloaded by script)
-- One skill per directory in `custom-skills-backup/`
+- All skills are in `all-skills/` folder
+- One skill per directory with `SKILL.md` file
 - Clear naming and documentation
 
 ## 📞 Support
