@@ -6,7 +6,23 @@
 
 <!-- SKILLS_TABLE_START -->
 <usage>
-When users ask you to perform tasks, check if any of the available skills below can help complete the task more effectively. Skills provide specialized capabilities and domain knowledge.
+<EXTREMELY-IMPORTANT>
+If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
+
+IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
+
+This is not negotiable. This is not optional. You cannot rationalize your way out of this.
+</EXTREMELY-IMPORTANT>
+
+**MANDATORY RULE: Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
+
+**Red Flags (DO NOT RATIONALIZE):**
+- "This is just a simple question" → Questions are tasks. Check for skills.
+- "I need more context first" → Skill check comes BEFORE clarifying questions.
+- "Let me explore the codebase first" → Skills tell you HOW to explore. Check first.
+- "This doesn't need a formal skill" → If a skill exists, use it.
+- "I remember this skill" → Skills evolve. Read current version.
+- "The skill is overkill" → Simple things become complex. Use it.
 
 How to use skills:
 - Invoke: Bash("openskills read <skill-name>")
@@ -17,6 +33,7 @@ Usage notes:
 - Only use skills listed in <available_skills> below
 - Do not invoke a skill that is already loaded in your context
 - Each skill invocation is stateless
+- Skill check comes BEFORE any response, clarification, or action
 </usage>
 
 <available_skills>
@@ -66,12 +83,6 @@ Usage notes:
 <skill>
 <name>executing-plans</name>
 <description>Use when you have a written implementation plan to execute in a separate session with review checkpoints</description>
-<location>project</location>
-</skill>
-
-<skill>
-<name>eye-tracking-analysis</name>
-<description>Comprehensive eye-tracking analysis tool for predicting visual attention patterns, heat maps, AOI analysis, and professional reports. Use when analyzing website landing pages, images, or specific UI elements for user attention and visual hierarchy.</description>
 <location>project</location>
 </skill>
 
