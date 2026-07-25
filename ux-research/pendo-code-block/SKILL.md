@@ -25,6 +25,8 @@ methodology in `references/diagnostic-and-layout.md` before shipping it.
 - Any "does Pendo support X from inside a Code Block" question, check
   `references/pendo-api-behavior.md` first, then use the diagnostic
   methodology if the answer isn't already documented there.
+- A guide has run and it's time to analyze the exported Track Events data
+  from a card-sort or MaxDiff Code Block, see "After launch" below.
 
 ## Quick-reference index
 
@@ -89,6 +91,21 @@ mock-pendo harness below exists to close that loop locally.
 Workflow: copy a template, edit `src/data.js`, build, iterate against
 `preview.html` for layout/interaction, then paste the three tab files into
 Pendo and verify live in the real staged guide (fact 1) before shipping.
+
+## After launch: reading the Track Events data
+
+Once the guide is staged/live and responses start coming in, find them in
+Pendo's Data Explorer under the event name used in `pendo.track()` (e.g.
+`card_sort_completed`, `maxdiff_trial_completed`, or whatever
+`studyName`/event name was scoped per fact 5), then export the rows (Data
+Explorer supports CSV export).
+
+The exported columns are exactly the payload shape defined in that
+project's `src/payload.js`, nothing more and nothing else to guess at.
+Hand Claude Code the export plus `src/payload.js` (and `src/data.js`, the
+export only contains ids like `cardId`/`categoryId`/`itemId`, not the
+readable labels) and it can write the analysis directly from the code it
+already generated to build the study, no separate schema doc needed.
 
 For the diagnostic methodology (how to safely investigate anything not
 covered above) and the suggested project layout for a Code Block build,
