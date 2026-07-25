@@ -1,0 +1,9 @@
+{
+  "name": "my-claude-skills",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal Claude skill collection, installable via npx",
+  "bin": {
+    "my-claude-skills": "bin/install.js"
+  }
+}
