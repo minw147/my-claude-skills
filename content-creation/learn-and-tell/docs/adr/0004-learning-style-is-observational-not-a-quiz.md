@@ -1,0 +1,5 @@
+# learning-style.md is free-observation, not a questionnaire
+
+`learning-style.md` is populated by the AI's ongoing observation during exploration, written in free form. `LEARNING-STYLE-FORMAT.md` lists dimensions (narrative preference, cognitive style, exploration breadth, output-format preference, question density, feedback style) as observation prompts, not a form the user fills out at onboarding.
+
+A structured up-front questionnaire (VARK-style, or a fixed typology) was considered and rejected on two grounds: (1) self-reported learning-style instruments are weakly evidence-based (VARK-style "teach to the stated style" has been repeatedly unsupported in the literature), and (2) asking a user to categorize themselves before they've even started exploring contradicts the "AI is a mirror, not a judge" stance that governs the rest of the product — profiling the user is itself a form of external judgment. The trade-off: the profile starts empty and takes several modules to become useful, versus an instant (but shakier) profile from a quiz.

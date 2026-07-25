@@ -1,0 +1,134 @@
+/* Paste into Pendo's Code Block CSS tab. Scoped under .md- to avoid
+   colliding with the host page's styles. Two-column best/worst layout,
+   matching a standard MaxDiff priority-ranking table: a radio column for
+   "Highest Priority" on the left, item labels in the middle, a radio
+   column for "Lowest Priority" on the right. */
+
+.md-root {
+  --md-bg: #f3f4f6;
+  --md-card: #ffffff;
+  --md-border: #e5e7eb;
+  --md-text: #1f2421;
+  --md-text-muted: #9ca3af;
+  --md-accent: #f0a93a;
+  --md-accent-hover: #d9922a;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--md-text);
+  background: var(--md-bg);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.md-root * { box-sizing: border-box; }
+
+.md-card {
+  background: var(--md-card);
+  border: 1px solid var(--md-border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.md-progress {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--md-text-muted);
+  margin: 0 0 6px;
+}
+
+.md-question {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--md-text);
+  margin: 0 0 20px;
+}
+
+.md-table {
+  display: grid;
+  grid-template-columns: 72px 1fr 72px;
+  /* stretch (the grid default), not center: every cell in a row must
+     share the same top/bottom edge so each cell's own border-top lines
+     up, regardless of whether the label wraps to one line or two.
+     Content is centered per-cell below instead. */
+  align-items: stretch;
+}
+
+.md-header-cell {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--md-text-muted);
+  text-transform: none;
+  line-height: 1.3;
+  padding-bottom: 10px;
+}
+
+.md-header-cell.md-header-highest { text-align: center; }
+.md-header-cell.md-header-lowest { text-align: center; }
+
+.md-row {
+  display: contents;
+}
+
+.md-row .md-radio-cell,
+.md-row .md-label-cell {
+  border-top: 1px solid var(--md-border);
+  padding: 14px 0;
+}
+
+.md-radio-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.md-radio-cell input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--md-accent);
+  cursor: pointer;
+}
+
+.md-radio-cell input[type="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.md-label-cell {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--md-text);
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.md-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.md-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--md-accent);
+  color: #fff;
+}
+
+.md-btn:hover { background: var(--md-accent-hover); }
+
+.md-btn:disabled {
+  background: var(--md-border);
+  color: var(--md-text-muted);
+  cursor: not-allowed;
+}

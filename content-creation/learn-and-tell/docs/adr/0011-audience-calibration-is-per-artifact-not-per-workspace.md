@@ -1,0 +1,7 @@
+# Audience calibration happens per-artifact, inside Create Mode — not a new skill or a workspace-level setting
+
+Create Mode now has an explicit "calibrate audience" step before drafting, and two new output templates (`essay.md`, `presentation-outline.md`) to support use cases beyond video/blog — e.g. exploring a topic to eventually write a Medium-style essay or prepare a conference talk for a professional audience (UXR, etc.).
+
+Two alternatives were considered and rejected. First, a separate skill for "research → professional writing" — rejected because the entire Explore Mode machinery (problem-posing, Topic Graph, wiki, learning-style observation) is identical regardless of what the final artifact is; only the output shape differs, and that's already what `templates/` exists to vary. Splitting would duplicate the whole exploration engine for no behavioral gain. Second, a single workspace-level `AUDIENCE.md` set once, like `MISSION.md` — rejected because a single exploration can legitimately produce artifacts for different audiences (a Medium essay for a general audience and a conference talk for domain peers, from the same highlights), so audience is a property of the artifact being produced, not of the workspace or the topic.
+
+Worth recording because a future reader might reasonably try to consolidate audience info into `MISSION.md` (it already has an optional output-intent field) — that would work for output *format* but breaks down for output *audience*, which needs to be re-established per artifact even when the format stays the same.

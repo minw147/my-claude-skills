@@ -1,0 +1,4 @@
+{
+  "files": ["src/data.js", "src/payload.js", "src/ui.js"],
+  "output": "dist/code-block.js"
+}

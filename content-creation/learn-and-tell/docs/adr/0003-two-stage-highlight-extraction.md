@@ -1,0 +1,5 @@
+# Highlights are drafted silently, confirmed only at Create Mode
+
+At the end of each module, the AI silently drafts candidate highlights (no user-facing signal). Candidates only surface — for the user to confirm or discard — when Create Mode is triggered. Only confirmed highlights are written to `./highlights/`.
+
+Two alternatives were rejected: (a) auto-writing highlights as final after every module, which risks diluting the highlight set with routine content the AI merely *thought* was insightful, since there's no user confirmation loop; and (b) requiring the user to proactively flag highlights themselves, which loses data for users who never speak up. The chosen approach keeps Explore Mode free of interruption (no "detected aha moment!" prompts, which would break the mirror-not-judge stance) while still capturing a full set of raw material by the time the user actually wants to produce something. Reversing this later means re-deriving historical candidates from old module content, which won't always be possible — this is the one highlight-related decision worth locking in early.

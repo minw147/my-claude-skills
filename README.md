@@ -19,6 +19,10 @@ Categories group related skills together (e.g. `ux-research/` for skills that re
 
 ### `ux-research/`
 - **[eye-tracking-analysis](ux-research/eye-tracking-analysis)** — predicts visual attention on a screenshot or URL in the first 3-5 seconds using Spectral Residual Saliency (heatmaps, clarity scores, fixation sequences, attention-share reports).
+- **[pendo-code-block](ux-research/pendo-code-block)** — build and debug custom Pendo Guide Code Blocks (pendo.track() sandbox errors, guides stuck loading, multi-step auto-advance, drag-and-drop bugs).
+
+### `content-creation/`
+- **[learn-and-tell](content-creation/learn-and-tell)** — guides problem-posing-driven exploration of a topic, then turns confirmed highlights into a publishable artifact (video script, blog post, essay, presentation outline) calibrated to a specific audience.
 
 ## Adding a Skill
 

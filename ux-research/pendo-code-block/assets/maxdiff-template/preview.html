@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>MaxDiff — local preview (mock pendo, NOT the real guide)</title>
+<link rel="stylesheet" href="src/styles.css" />
+<style>
+  body { font-family: system-ui, sans-serif; padding: 24px; background: #eceae4; }
+  .preview-banner {
+    background: #fff3cd; border: 1px solid #ffe08a; padding: 12px 16px;
+    border-radius: 6px; margin-bottom: 24px; font-size: 14px; max-width: 640px;
+    margin-left: auto; margin-right: auto;
+  }
+</style>
+</head>
+<body>
+  <div class="preview-banner">
+    <strong>Local preview only.</strong> window.pendo is mocked
+    (scripts/mock-pendo.js). This validates layout and trial-cycling
+    interaction, not real Pendo behavior (track events, staging, multi-step
+    advance). Verify live in the real staged guide before shipping — see
+    SKILL.md fact 1.
+  </div>
+
+  <!-- markup.html's content — paste markup.html into Pendo's HTML tab,
+       styles.css into the CSS tab, and dist/code-block.js into the JS tab. -->
+  <div id="maxdiff-root" class="md-root"></div>
+
+  <script src="../../scripts/mock-pendo.js"></script>
+  <script src="dist/code-block.js"></script>
+</body>
+</html>

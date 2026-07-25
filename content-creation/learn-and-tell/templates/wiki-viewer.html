@@ -1,0 +1,817 @@
+<!--
+  Wiki Viewer Template — see references/WIKI-FORMAT.md "The interactive viewer" for the
+  regeneration procedure. This file is self-contained (no external libraries/CDN) so it
+  can be dropped straight into a deployed static site or published as an Artifact.
+
+  Design lineage: this template was ported from a user-provided Claude Design (claude.ai/design)
+  handoff — a canvas force-graph with degree-tier coloring (cool→warm by link count, deep gold
+  glow for hubs), hover tooltips, a slide-in side panel, a Force/Linear (chronological-lane) view
+  toggle, and direct-vs-thematic edge styling with arrowheads. Preserve this visual language on
+  redesigns unless the user explicitly asks for a different one.
+
+  UI LANGUAGE: all interface copy in this template (labels, buttons, tooltips, panel text) is
+  written in English by default. This is not a fixed convention — when instantiating for a new
+  workspace, write the UI copy in whatever language the user has been communicating in during this
+  session (infer it, don't ask unless genuinely ambiguous). Content pages (PAGES bodies) already
+  follow the user's language naturally since you write them during Explore Mode; this note is about
+  the *chrome* (nav labels, "Settings", "Layout", "All", tooltip field order, etc.), which is
+  template boilerplate and easy to leave in the wrong language by accident if you only swap data
+  and not the surrounding UI strings.
+
+  TO INSTANTIATE FOR A WORKSPACE:
+  1. Replace <title>, the header .chapter/.title text, and the top-nav links with the workspace's
+     own site nav (mirror whatever nav pattern the deployed lessons already use — same convention
+     as modules/*.html's top-nav — or delete the <nav class="top-nav"> block entirely if the
+     workspace has no deployed site).
+  2. Replace the PAGES object with one entry per current wiki/*.md file (title, aliases,
+     appears_in, body — body is the markdown after frontmatter, verbatim; the mini renderer
+     handles ##, **bold**, `code`, lists, and [[wikilinks]]).
+  3. Replace the GROUPS array with the current theme grouping from wiki/index.md.
+  4. Replace NODES with one entry per page: { id, en, category, desc }. `category` drives the
+     Linear/Chronological view's lanes — pick whichever 3-5 categories actually fit this workspace's
+     entities (the original design used event/empire/place/person/culture; adapt freely, and
+     update CATEGORY_ORDER in the script to match). `desc` is a single sentence for the tooltip
+     and side panel — reuse each page's "One line" summary.
+  5. Replace EDGES with [fromId, toId, type, weight] tuples derived from actual [[wikilink]]
+     mutuality: if two pages link to each other, type='direct' (solid line + arrowhead); if only
+     one links to the other, type='thematic' (dashed, no arrowhead). weight 1-3, higher for
+     edges you want visually heavier (e.g. edges connecting your highest-degree hub nodes).
+  6. Replace MODULE_URLS with the real mapping from each module id to its deployed lesson URL —
+     this is what lets thin wiki pages (a "one line" summary + a few bullets, deliberately not a
+     rewrite of the module) still hand the reader a click-through to the full original content
+     instead of dead-ending. Keep it in sync whenever a module's filename or deploy path changes.
+  7. Leave HUB_THRESHOLD, DEGREE_TIERS, LABEL_THRESHOLD, and the render/graph-physics JS untouched
+     unless the user has specifically asked to redesign the viewer itself (separate task from a
+     data resync). The label-density toggle (All / 3+, behind the ⚙ Settings panel) is user-facing
+     UI, not something to reconfigure per workspace.
+  8. If this workspace deploys a static site, this file (or its instantiated copy) belongs at the
+     deploy root or a dedicated route, linked from the site nav — not left sitting only in
+     outputs/.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TOPIC}} · Knowledge Graph</title>
+<style>
+  :root {
+    --bg: #f8f4ea; --bg-2: #f1ead9; --panel: #fffdf7;
+    --ink: #241f14; --ink-dim: #6b6047;
+    --gold: #96660f; --gold-bright: #7a5209; --gold-fill: #fbeecb;
+    --line: #d9cdb0; --link: #2f5a75; --link-fill: #e2eef2;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body {
+    font-family: var(--serif); background: var(--bg); color: var(--ink);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:translateY(0);} }
+  ::selection { background: rgba(150,102,15,0.25); }
+
+  /* global site nav placeholder — mirror the workspace's existing lesson-page top-nav, or delete this block */
+  .top-nav {
+    z-index: 100; background: rgba(248,244,234,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line); padding: 8px 24px; display: flex; gap: 8px; align-items: center; flex-shrink:0;
+  }
+  .top-nav a { font-size: 13px; color: var(--ink-dim); text-decoration: none; padding: 6px 14px; border-radius: 6px; transition: all 0.15s; white-space: nowrap; font-family: var(--serif); }
+  .top-nav a:hover { color: var(--gold-bright); background: var(--bg-2); }
+  .top-nav .sep { color: var(--line); font-size: 13px; }
+
+  header {
+    display:flex; align-items:baseline; justify-content:space-between; padding:20px 32px 13px;
+    border-bottom:1px solid rgba(150,102,15,0.35); flex-shrink:0; flex-wrap:wrap; gap:10px;
+  }
+  header .title-group { display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; }
+  header .chapter { font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); font-weight:600; }
+  header .title { font-size:23px; font-weight:600; letter-spacing:0.01em; }
+  header .legend { display:flex; align-items:center; gap:18px; font-size:12px; color:#5c4d33; flex-wrap:wrap; }
+  header .legend .item { display:flex; align-items:center; gap:6px; }
+  .dot-hub { width:13px; height:13px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #fbeecb, #e8c477 70%, #96660f); box-shadow:0 0 6px 1px rgba(150,102,15,0.45); display:inline-block; border:1px solid #96660f; }
+  .dot-leaf { width:8px; height:8px; border-radius:50%; background:#fbeecb; border:1px solid #96660f; display:inline-block; }
+  .line-direct { width:20px; height:0; border-top:2px solid #96660f; display:inline-block; }
+  .line-thematic { width:20px; height:0; border-top:2px dashed #96660f; display:inline-block; opacity:0.6; }
+
+  .tabs-row { display:flex; align-items:center; gap:16px; padding:8px 32px; border-bottom:1px solid rgba(150,102,15,0.2); flex-shrink:0; font-size:12px; position:relative; }
+  .mode-btns { display:flex; gap:8px; flex-shrink:0; }
+  .mode-btn { border:1px solid var(--gold); background:transparent; color:var(--gold); padding:5px 14px; border-radius:2px; font-family:var(--serif); font-size:12.5px; cursor:pointer; letter-spacing:0.02em; }
+  .mode-btn.active { background:var(--gold); color:var(--gold-fill); }
+  .vsep { width:1px; height:16px; background:rgba(150,102,15,0.3); flex-shrink:0; }
+  .tier-chips { display:flex; gap:14px; color:#5c4d33; flex-wrap:wrap; }
+  .tier-chip { display:flex; align-items:center; gap:6px; }
+  .tier-swatch { width:11px; height:11px; border-radius:50%; border:1px solid rgba(150,102,15,0.5); display:inline-block; }
+  .view-tabs { margin-left:auto; display:flex; gap:6px; flex-shrink:0; }
+  .tab-btn { font-family: var(--serif); font-size:12.5px; padding:5px 13px; border-radius:6px; border:1px solid var(--line); background:var(--bg-2); color:var(--ink-dim); cursor:pointer; }
+  .tab-btn.active { background:var(--gold-fill); color:var(--gold-bright); border-color:var(--gold); font-weight:600; }
+
+  /* graph-only controls: gear icon + dropdown panel, hidden entirely in reader view */
+  #graph-controls { display:flex; align-items:center; gap:16px; }
+  .settings-toggle {
+    display:flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--bg-2);
+    color:var(--ink-dim); padding:5px 12px; border-radius:6px; font-family:var(--serif); font-size:12.5px;
+    cursor:pointer; flex-shrink:0;
+  }
+  .settings-toggle.active, .settings-toggle:hover { border-color:var(--gold); color:var(--gold-bright); }
+  #settings-panel {
+    display:none; position:absolute; top:100%; left:32px; margin-top:6px; z-index:30;
+    background:var(--panel); border:1px solid var(--gold); border-radius:8px;
+    box-shadow:0 8px 22px rgba(36,31,20,0.18); padding:14px 16px; flex-direction:column; gap:12px;
+  }
+  #settings-panel.open { display:flex; }
+  .settings-group { display:flex; flex-direction:column; gap:6px; }
+  .settings-group-label { font-size:10.5px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); }
+
+  .layout { flex:1; display:flex; min-height:0; }
+
+  /* reader */
+  #reader-tab { display:none; }
+  aside { width: 230px; flex-shrink:0; border-right:1px solid var(--line); background:var(--panel); overflow-y:auto; padding: 14px 0; transition: transform 0.25s ease; }
+  aside .group-title { font-size:10.5px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); padding: 14px 18px 6px; }
+  aside a.page-link { display:block; padding:7px 18px; font-size:13.5px; color:var(--ink); text-decoration:none; border-left:3px solid transparent; cursor:pointer; }
+  aside a.page-link:hover { background:var(--bg-2); }
+  aside a.page-link.active { border-left-color:var(--gold); background:var(--gold-fill); color:var(--gold-bright); font-weight:600; }
+  main { flex:1; overflow-y:auto; padding: 32px 44px 70px; }
+  .drawer-toggle { display:none; }
+  .drawer-backdrop { display:none; }
+  .page { max-width: 660px; margin:0 auto; display:none; }
+  .page.active { display:block; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px; }
+  .pill { font-size:11px; padding:2px 10px; border-radius:20px; border:1px solid var(--line); color:var(--ink-dim); background:var(--bg-2); }
+  .pill.appears { color:var(--gold-bright); border-color:var(--gold); background:var(--gold-fill); }
+  a.pill.appears { text-decoration:none; cursor:pointer; transition:background 0.15s; }
+  a.pill.appears:hover { background:var(--gold); color:var(--gold-fill); }
+  .page h1 { font-size:24px; font-weight:400; margin-bottom:6px; }
+  .page .aliases { font-size:12.5px; color:var(--ink-dim); font-style:italic; margin-bottom:18px; }
+  .page h2 { font-size:15.5px; color:var(--gold-bright); margin:24px 0 10px; font-weight:600; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  .page p { font-size:14.5px; line-height:1.78; margin-bottom:12px; }
+  .page ul, .page ol { margin: 8px 0 14px 22px; font-size:14.5px; line-height:1.78; }
+  .page li { margin-bottom:6px; }
+  .page strong { color: var(--gold-bright); }
+  .page code { background:var(--bg-2); padding:1px 6px; border-radius:3px; font-size:0.9em; border:1px solid var(--line); }
+  .wikilink { color: var(--link); text-decoration:none; border-bottom:1px dashed var(--link); cursor:pointer; padding: 0 1px; }
+  .wikilink:hover { background: var(--link-fill); }
+
+  /* graph */
+  #graph-tab { flex:1; display:flex; }
+  #graph-wrap { flex:1; position:relative; overflow:hidden; cursor:grab; }
+  #graph-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  #vignette { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center, transparent 52%, rgba(36,31,20,0.16) 100%); }
+  #grain { position:absolute; inset:0; pointer-events:none; opacity:0.045; mix-blend-mode:multiply; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  #graph-tooltip {
+    position:absolute; left:0; top:0; opacity:0; pointer-events:none; transform:translate(-9999px,-9999px);
+    background:#fbeecb; border:1px solid #96660f; border-radius:3px; padding:9px 13px; max-width:220px;
+    box-shadow:0 6px 18px rgba(36,31,20,0.22); font-size:13px; line-height:1.4; z-index:5;
+  }
+  #graph-tooltip .tt-title { font-weight:700; margin-bottom:2px; }
+  #graph-tooltip .tt-en { font-style:italic; color:#8a6a2f; font-size:11.5px; margin-bottom:4px; }
+  #graph-tooltip .tt-desc { color:#4a3f2a; font-size:12px; }
+  #graph-hint { position:absolute; left:16px; bottom:14px; font-size:11px; color:#8a7856; letter-spacing:0.03em; pointer-events:none; }
+
+  #side-panel {
+    position:absolute; top:0; right:0; bottom:0; width:320px; background:var(--bg);
+    border-left:1px solid var(--gold); box-shadow:-10px 0 28px rgba(36,31,20,0.15);
+    padding:26px 24px; display:none; flex-direction:column; gap:14px; animation: fadeIn 0.18s ease-out;
+  }
+  #side-panel.open { display:flex; }
+  #side-panel .sp-top { display:flex; justify-content:space-between; align-items:flex-start; }
+  #side-panel .sp-hub { font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+  #side-panel .sp-label { font-size:21px; font-weight:700; }
+  #side-panel .sp-en { font-style:italic; color:#8a6a2f; font-size:13.5px; margin-top:2px; }
+  #side-panel .sp-close { background:none; border:none; font-size:20px; color:var(--gold); cursor:pointer; line-height:1; padding:2px 6px; }
+  #side-panel .sp-rule { height:1px; background:rgba(150,102,15,0.3); }
+  #side-panel .sp-desc { font-size:14px; line-height:1.65; color:#3a3220; }
+  #side-panel .sp-degree { font-size:12.5px; color:#8a7856; margin-top:auto; }
+  #side-panel .sp-open { display:block; text-align:center; padding:10px 0; background:var(--gold); color:#fbeecb; text-decoration:none; border-radius:2px; font-size:13.5px; letter-spacing:0.03em; cursor:pointer; }
+
+  /* touch: let the graph canvas own all touch gestures (pan/pinch/tap) instead of the browser */
+  #graph-wrap { touch-action: none; }
+  #side-panel { touch-action: auto; }
+
+  @media (max-width: 760px) {
+    body { overflow-x:hidden; }
+    .top-nav { padding:6px 10px; gap:2px; }
+    .top-nav a { padding:5px 7px; font-size:12px; }
+    .top-nav .sep { display:none; }
+    header { padding:12px 16px 8px; }
+    header .title { font-size:15px; }
+    header .title-en { display:none; }
+    header .chapter { font-size:10px; }
+    header .legend { display:none; }
+
+    .tabs-row { padding:8px 12px; gap:10px; }
+    .tier-chips { display:none; } /* redundant with node color once you can tap a node — save the space */
+    #settings-panel { left:12px; right:12px; }
+
+    /* reader: sidebar becomes a slide-in drawer, opened via hamburger */
+    .drawer-toggle {
+      display:flex; align-items:center; justify-content:center; width:34px; height:34px;
+      border:1px solid var(--gold); border-radius:4px; background:var(--panel); color:var(--gold);
+      font-size:16px; cursor:pointer;
+      position:absolute; top:10px; left:12px; z-index:25;
+      box-shadow: 0 2px 8px rgba(36,31,20,0.15);
+    }
+    #reader-tab { position:relative; }
+    aside {
+      position:absolute; top:0; bottom:0; left:0; z-index:20; width:76vw; max-width:300px;
+      transform:translateX(-100%); box-shadow: 8px 0 24px rgba(36,31,20,0.18);
+    }
+    aside.open { transform:translateX(0); }
+    .drawer-backdrop {
+      display:block; position:absolute; inset:0; z-index:15; background:rgba(36,31,20,0.28);
+      opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+    }
+    .drawer-backdrop.open { opacity:1; pointer-events:auto; }
+    main { padding:56px 18px 60px; }
+    .page h1 { font-size:20px; }
+
+    /* graph: side panel becomes a bottom sheet instead of a right-hand rail */
+    #side-panel {
+      top:auto; left:0; right:0; width:auto; max-height:62vh;
+      border-left:none; border-top:1px solid var(--gold); border-radius:14px 14px 0 0;
+      box-shadow: 0 -10px 28px rgba(36,31,20,0.18);
+      padding:10px 20px 22px; overflow-y:auto;
+    }
+    #side-panel::before {
+      content:""; display:block; width:36px; height:4px; border-radius:2px; background:var(--line);
+      margin:0 auto 14px;
+    }
+    #side-panel .sp-label { font-size:19px; }
+    #graph-hint { font-size:10px; left:10px; bottom:10px; max-width:60vw; line-height:1.4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Site nav placeholder — replace with the workspace's real top-nav, or delete this <nav> entirely -->
+<nav class="top-nav">
+  <a href="/">🏠</a>
+  <span class="sep">/</span>
+  <a href="/lessons/">📚 Lessons</a>
+</nav>
+
+<header>
+  <div class="title-group">
+    <span class="chapter">Chapter</span>
+    <span class="title">The Knowledge Graph</span>
+  </div>
+  <div class="legend">
+    <div class="item"><span class="dot-hub"></span>Hub</div>
+    <div class="item"><span class="dot-leaf"></span>Leaf</div>
+    <div class="item"><span class="line-direct"></span>Direct link</div>
+    <div class="item"><span class="line-thematic"></span>Thematic link</div>
+  </div>
+</header>
+
+<div class="tabs-row">
+  <div id="graph-controls">
+    <button class="settings-toggle" id="settings-toggle">⚙ Settings</button>
+    <div class="tier-chips" id="tier-chips"></div>
+  </div>
+  <div id="settings-panel">
+    <div class="settings-group">
+      <div class="settings-group-label">Layout</div>
+      <div class="mode-btns" id="mode-btns"></div>
+    </div>
+    <div class="settings-group">
+      <div class="settings-group-label">Labels</div>
+      <div class="mode-btns" id="label-btns"></div>
+    </div>
+  </div>
+  <div class="view-tabs">
+    <button class="tab-btn active" data-view="graph">Graph</button>
+    <button class="tab-btn" data-view="reader">Reader</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div id="reader-tab" class="layout" style="flex:1;">
+    <button class="drawer-toggle" id="drawer-toggle" aria-label="Open index">☰</button>
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+    <aside id="sidebar"></aside>
+    <main id="main"></main>
+  </div>
+
+  <div id="graph-tab">
+    <div id="graph-wrap">
+      <canvas id="graph-canvas"></canvas>
+      <div id="vignette"></div>
+      <div id="grain"></div>
+      <div id="graph-tooltip"><div class="tt-title"></div><div class="tt-en"></div><div class="tt-desc"></div></div>
+      <div id="graph-hint">Drag nodes to rearrange · scroll to zoom · click to open an entry</div>
+      <div id="side-panel">
+        <div class="sp-top">
+          <div>
+            <div class="sp-hub" id="sp-hub"></div>
+            <div class="sp-label" id="sp-label"></div>
+            <div class="sp-en" id="sp-en"></div>
+          </div>
+          <button class="sp-close" onclick="closeSidePanel()">×</button>
+        </div>
+        <div class="sp-rule"></div>
+        <div class="sp-desc" id="sp-desc"></div>
+        <div class="meta-row" id="sp-modules"></div>
+        <div class="sp-degree" id="sp-degree"></div>
+        <a class="sp-open" id="sp-open">Open Chapter →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== WIKI DATA (reader mode) — REPLACE ON EVERY REGENERATION ===================== */
+const PAGES = {
+"index": {
+  title: "Wiki Index", aliases: [], appears_in: [],
+  body: `## Groups
+
+Fill in from wiki/index.md's grouped listing, e.g.:
+
+**Group name**: [[example-entity-one]] · [[example-entity-two]]`
+},
+"example-entity-one": {
+  title: "Example Entity One", aliases: [], appears_in: ["0001"],
+  body: `**One line**: replace this whole PAGES object with real entries generated from wiki/*.md.
+
+## Related
+[[example-entity-two]]`
+},
+"example-entity-two": {
+  title: "Example Entity Two", aliases: [], appears_in: ["0001"],
+  body: `**One line**: placeholder second page so the graph view has an edge to render.
+
+## Related
+[[example-entity-one]]`
+}
+};
+
+const GROUPS = [
+  ["Index", ["index"]],
+  ["Example group", ["example-entity-one", "example-entity-two"]],
+];
+
+/* Maps module ids (as used in appears_in) to the actual deployed lesson/module URL, so wiki
+   pages can stay short (a synthesized "one line" summary + a few bullets, not a rewrite of the module)
+   and still link out to the full module for readers who want more depth. Build this from
+   modules/*.html's actual filenames/deploy paths — keep it in sync as new modules are added. */
+const MODULE_URLS = {
+  "0001": "/lessons/0001-example-module.html"
+};
+
+/* ===================== GRAPH DATA — REPLACE ON EVERY REGENERATION ===================== */
+/* en / category / desc drive the graph view (tooltip, side panel, linear/chronological lanes).
+   category: pick 3-5 that fit this workspace's entities and update CATEGORY_ORDER below to match
+   (original design used event/empire/place/person/culture — adapt freely). */
+const NODES = [
+  { id:'example-entity-one', en:'Example Entity One', category:'event', desc:"One-sentence summary reused from the page's One line summary." },
+  { id:'example-entity-two', en:'Example Entity Two', category:'culture', desc:'Second placeholder so the graph has something to render.' }
+];
+// edge type is derived from real [[wikilink]] mutuality: linked both ways = 'direct', one-way = 'thematic'
+const EDGES = [
+  ['example-entity-one','example-entity-two','direct',2]
+];
+const DEGREE_TIERS = [
+  { max: 1, color: 'oklch(0.88 0.03 230)', label: '1 link' },
+  { max: 3, color: 'oklch(0.85 0.06 170)', label: '2–3 links' },
+  { max: Infinity, color: 'oklch(0.78 0.10 70)', label: '4+ links' },
+  { hub: true, color: 'oklch(0.68 0.15 45)', label: 'Hub' }
+];
+
+/* ===================== MARKDOWN RENDER (reader mode) — leave untouched ===================== */
+function renderMarkdown(md) {
+  let lines = md.split('\n');
+  let html = '', inList = false, listType = null;
+  const closeList = () => { if (inList) { html += listType === 'ol' ? '</ol>' : '</ul>'; inList = false; } };
+  for (let raw of lines) {
+    let line = raw.trim();
+    if (line === '') { closeList(); continue; }
+    if (line.startsWith('## ')) { closeList(); html += `<h2>${inline(line.slice(3))}</h2>`; continue; }
+    if (line.startsWith('# ')) { closeList(); html += `<h2>${inline(line.slice(2))}</h2>`; continue; }
+    if (/^\d+\.\s/.test(line)) { if (!inList || listType !== 'ol') { closeList(); html += '<ol>'; inList = true; listType='ol'; } html += `<li>${inline(line.replace(/^\d+\.\s/, ''))}</li>`; continue; }
+    if (line.startsWith('- ')) { if (!inList || listType !== 'ul') { closeList(); html += '<ul>'; inList = true; listType='ul'; } html += `<li>${inline(line.slice(2))}</li>`; continue; }
+    closeList();
+    html += `<p>${inline(line)}</p>`;
+  }
+  closeList();
+  return html;
+}
+function inline(s) {
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/`(.+?)`/g, '<code>$1</code>');
+  s = s.replace(/\[\[([^\|\]]+)\|([^\]]+)\]\]/g, (m, target, label) => `<a class="wikilink" data-page="${target}">${label}</a>`);
+  s = s.replace(/\[\[([^\]]+)\]\]/g, (m, target) => { const label = PAGES[target] ? PAGES[target].title : target; return `<a class="wikilink" data-page="${target}">${label}</a>`; });
+  return s;
+}
+
+const sidebar = document.getElementById('sidebar');
+const main = document.getElementById('main');
+GROUPS.forEach(([groupName, ids]) => {
+  const gt = document.createElement('div'); gt.className = 'group-title'; gt.textContent = groupName; sidebar.appendChild(gt);
+  ids.forEach(id => {
+    if (!PAGES[id]) return;
+    const a = document.createElement('a'); a.className = 'page-link'; a.dataset.page = id;
+    a.textContent = PAGES[id].title; a.onclick = () => openPage(id); sidebar.appendChild(a);
+  });
+});
+Object.keys(PAGES).forEach(id => {
+  const p = PAGES[id]; const el = document.createElement('div'); el.className = 'page'; el.id = 'page-' + id;
+  let metaHtml = p.appears_in.length ? '<div class="meta-row">' + p.appears_in.map(m => {
+    const url = MODULE_URLS[m];
+    return url ? `<a class="pill appears" href="${url}" target="_blank" rel="noopener" title="Open full lesson ${m}">${m} ↗</a>` : `<span class="pill appears">${m}</span>`;
+  }).join('') + '</div>' : '';
+  let aliasHtml = p.aliases.length ? `<div class="aliases">${p.aliases.join(' · ')}</div>` : '';
+  el.innerHTML = `${metaHtml}<h1>${p.title}</h1>${aliasHtml}${renderMarkdown(p.body)}`;
+  main.appendChild(el);
+});
+function openPage(id) {
+  if (!PAGES[id]) return;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page-link').forEach(a => a.classList.remove('active'));
+  const target = document.getElementById('page-' + id); if (target) target.classList.add('active');
+  const link = document.querySelector(`.page-link[data-page="${id}"]`); if (link) link.classList.add('active');
+  main.scrollTop = 0;
+}
+main.addEventListener('click', (e) => { if (e.target.classList.contains('wikilink')) openPage(e.target.dataset.page); });
+openPage('index');
+
+/* ===================== MOBILE DRAWER (reader sidebar) — leave untouched ===================== */
+const asideEl = document.getElementById('sidebar');
+const drawerToggle = document.getElementById('drawer-toggle');
+const drawerBackdrop = document.getElementById('drawer-backdrop');
+function openDrawer() { asideEl.classList.add('open'); drawerBackdrop.classList.add('open'); }
+function closeDrawer() { asideEl.classList.remove('open'); drawerBackdrop.classList.remove('open'); }
+drawerToggle.addEventListener('click', () => { asideEl.classList.contains('open') ? closeDrawer() : openDrawer(); });
+drawerBackdrop.addEventListener('click', closeDrawer);
+sidebar.addEventListener('click', (e) => { if (e.target.classList.contains('page-link')) closeDrawer(); });
+
+/* ===================== VIEW TABS (Reader vs Graph) — leave untouched ===================== */
+document.querySelectorAll('.view-tabs .tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.view-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const view = btn.dataset.view;
+    document.getElementById('reader-tab').style.display = view === 'reader' ? 'flex' : 'none';
+    document.getElementById('graph-tab').style.display = view === 'graph' ? 'flex' : 'none';
+    document.getElementById('graph-controls').style.display = view === 'graph' ? 'flex' : 'none';
+    if (view !== 'graph') closeSettingsPanel();
+    if (view === 'graph') { resizeCanvas(); }
+  };
+});
+function showReaderWithPage(id) {
+  document.querySelector('.view-tabs .tab-btn[data-view="reader"]').click();
+  openPage(id);
+}
+
+/* ===================== SETTINGS PANEL (mode + label toggles, graph view only) — leave untouched ===================== */
+const settingsToggle = document.getElementById('settings-toggle');
+const settingsPanel = document.getElementById('settings-panel');
+function openSettingsPanel() { settingsPanel.classList.add('open'); settingsToggle.classList.add('active'); }
+function closeSettingsPanel() { settingsPanel.classList.remove('open'); settingsToggle.classList.remove('active'); }
+settingsToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  settingsPanel.classList.contains('open') ? closeSettingsPanel() : openSettingsPanel();
+});
+document.addEventListener('click', (e) => {
+  if (settingsPanel.classList.contains('open') && !settingsPanel.contains(e.target) && e.target !== settingsToggle) closeSettingsPanel();
+});
+
+/* ===================== TOOLBAR: mode buttons + tier chips — leave untouched ===================== */
+const modeBtnsEl = document.getElementById('mode-btns');
+const MODES = [ { key:'force', label:'Network' }, { key:'linear', label:'Chronological' } ];
+let currentMode = 'force';
+function renderModeBtns() {
+  modeBtnsEl.innerHTML = '';
+  MODES.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'mode-btn' + (currentMode === m.key ? ' active' : '');
+    b.textContent = m.label;
+    b.onclick = () => setMode(m.key);
+    modeBtnsEl.appendChild(b);
+  });
+}
+renderModeBtns();
+
+/* label density: 'all' shows every node's name; 'threshold' shows only hubs + nodes above LABEL_THRESHOLD links */
+const labelBtnsEl = document.getElementById('label-btns');
+const LABEL_MODES = [ { key:'all', label:'All' }, { key:'threshold', label:'3+' } ];
+const LABEL_THRESHOLD = 3;
+let labelMode = 'all';
+function renderLabelBtns() {
+  labelBtnsEl.innerHTML = '';
+  LABEL_MODES.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'mode-btn' + (labelMode === m.key ? ' active' : '');
+    b.textContent = m.label;
+    b.onclick = () => { labelMode = m.key; renderLabelBtns(); };
+    labelBtnsEl.appendChild(b);
+  });
+}
+renderLabelBtns();
+
+const tierChipsEl = document.getElementById('tier-chips');
+DEGREE_TIERS.forEach(t => {
+  const c = document.createElement('div'); c.className = 'tier-chip';
+  c.innerHTML = `<span class="tier-swatch" style="background:${t.color};"></span>${t.label}`;
+  tierChipsEl.appendChild(c);
+});
+
+/* ===================== GRAPH ENGINE — leave untouched ===================== */
+const HUB_THRESHOLD = 5;
+const nodeById = {};
+NODES.forEach((n, i) => {
+  const angle = (i / NODES.length) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+  const r = 200 + (i % 5) * 110 + Math.random() * 70;
+  nodeById[n.id] = { ...n, degree: 0, isHub: false, x: Math.cos(angle) * r, y: Math.sin(angle) * r, vx: 0, vy: 0 };
+});
+const edges = EDGES.map(([a, b, type, weight]) => ({ a: nodeById[a], b: nodeById[b], type, weight }));
+edges.forEach(({ a, b }) => { a.degree++; b.degree++; });
+Object.values(nodeById).forEach(n => { n.isHub = n.degree >= HUB_THRESHOLD; });
+const adjacency = {};
+Object.keys(nodeById).forEach(id => { adjacency[id] = new Set(); });
+edges.forEach(({ a, b }) => { adjacency[a.id].add(b.id); adjacency[b.id].add(a.id); });
+const nodeList = Object.values(nodeById);
+
+function tierColor(n) {
+  if (n.isHub) return DEGREE_TIERS[3].color;
+  for (const t of DEGREE_TIERS) { if (t.max !== undefined && n.degree <= t.max) return t.color; }
+  return DEGREE_TIERS[2].color;
+}
+function radiusOf(n) { return n.isHub ? 20 + Math.min(n.degree, 8) : 8 + Math.min(n.degree, 4) * 1.2; }
+
+/* Update CATEGORY_ORDER to match the `category` values used in NODES above (Linear view lanes) */
+const CATEGORY_ORDER = ['event', 'empire', 'person', 'culture'];
+function computeLinearLayout() {
+  const lanes = {}; CATEGORY_ORDER.forEach(c => lanes[c] = []);
+  nodeList.forEach(n => { (lanes[n.category] || (lanes[n.category] = [])).push(n); });
+  CATEGORY_ORDER.forEach((cat, li) => {
+    const lane = (lanes[cat] || []).sort((a, b) => b.degree - a.degree);
+    lane.forEach((n, i) => {
+      n.tx = (i - (lane.length - 1) / 2) * 165;
+      n.ty = (li - (CATEGORY_ORDER.length - 1) / 2) * 140;
+    });
+  });
+}
+
+const wrap = document.getElementById('graph-wrap');
+const canvas = document.getElementById('graph-canvas');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('graph-tooltip');
+const sidePanel = document.getElementById('side-panel');
+let transform = { x: 0, y: 0, scale: 1 }, centered = false;
+let pointer = { dragging: null, panning: false, lastX: 0, lastY: 0, moved: false };
+let hoveredId = null, selectedId = null, settled = false, settleFrames = 130, cw = 0, ch = 0;
+
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  cw = wrap.clientWidth; ch = wrap.clientHeight;
+  canvas.width = cw * dpr; canvas.height = ch * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (!centered) { transform.x = cw / 2; transform.y = ch / 2; centered = true; }
+}
+window.addEventListener('resize', resizeCanvas);
+new ResizeObserver(resizeCanvas).observe(wrap);
+
+function screenToWorld(sx, sy) { return { x: (sx - transform.x) / transform.scale, y: (sy - transform.y) / transform.scale }; }
+function nodeAt(sx, sy) {
+  const w = screenToWorld(sx, sy);
+  for (let i = nodeList.length - 1; i >= 0; i--) {
+    const n = nodeList[i]; const rad = radiusOf(n) + 4;
+    if ((n.x - w.x) ** 2 + (n.y - w.y) ** 2 <= rad * rad) return n;
+  }
+  return null;
+}
+
+/* multi-touch: single finger drags a node or pans the canvas; two fingers pinch-zoom (and pan by
+   midpoint movement); a tap is decided at release by total displacement, not by "did it move at
+   all", so touch jitter doesn't turn a tap-to-select into an accidental drag. */
+const activePointers = new Map();
+let pinch = null; // { prevDist, prevMid }
+let tapCandidate = null; // { node, startX, startY }
+
+function ptDist(p1, p2) { return Math.hypot(p1.x - p2.x, p1.y - p2.y); }
+function ptMid(p1, p2) { return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }; }
+
+wrap.addEventListener('pointerdown', (e) => {
+  if (sidePanel.contains(e.target)) return; // let clicks/taps inside the side panel behave normally
+  try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+  const rect = wrap.getBoundingClientRect(); const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+  activePointers.set(e.pointerId, { x: sx, y: sy });
+
+  if (activePointers.size >= 2) {
+    if (pointer.dragging) pointer.dragging.fixed = false;
+    pointer.dragging = null; pointer.panning = false; tapCandidate = null;
+    const pts = [...activePointers.values()];
+    pinch = { prevDist: ptDist(pts[0], pts[1]), prevMid: ptMid(pts[0], pts[1]) };
+  } else {
+    const hit = nodeAt(sx, sy);
+    tapCandidate = { node: hit, startX: sx, startY: sy };
+    if (hit) { pointer.dragging = hit; hit.fixed = true; } else { pointer.panning = true; wrap.style.cursor = 'grabbing'; }
+    pointer.lastX = sx; pointer.lastY = sy;
+  }
+});
+window.addEventListener('pointermove', (e) => {
+  if (!wrap) return;
+  const rect = wrap.getBoundingClientRect(); const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+  if (activePointers.has(e.pointerId)) activePointers.set(e.pointerId, { x: sx, y: sy });
+
+  if (pinch && activePointers.size >= 2) {
+    const pts = [...activePointers.values()];
+    const d = ptDist(pts[0], pts[1]), mid = ptMid(pts[0], pts[1]);
+    if (pinch.prevDist) {
+      const beforeWorld = screenToWorld(mid.x, mid.y);
+      transform.scale = Math.min(3, Math.max(0.35, transform.scale * (d / pinch.prevDist)));
+      const afterWorld = screenToWorld(mid.x, mid.y);
+      transform.x += (afterWorld.x - beforeWorld.x) * transform.scale;
+      transform.y += (afterWorld.y - beforeWorld.y) * transform.scale;
+      transform.x += mid.x - pinch.prevMid.x; transform.y += mid.y - pinch.prevMid.y;
+    }
+    pinch.prevDist = d; pinch.prevMid = mid;
+    return;
+  }
+  if (pointer.dragging) {
+    const w = screenToWorld(sx, sy);
+    pointer.dragging.x = w.x; pointer.dragging.y = w.y; pointer.dragging.vx = 0; pointer.dragging.vy = 0;
+  } else if (pointer.panning) {
+    transform.x += sx - pointer.lastX; transform.y += sy - pointer.lastY;
+  } else {
+    if (sx < 0 || sy < 0 || sx > rect.width || sy > rect.height) { hideTooltip(); pointer.lastX = sx; pointer.lastY = sy; return; }
+    const hit = nodeAt(sx, sy); hoveredId = hit ? hit.id : null;
+    wrap.style.cursor = hit ? 'pointer' : 'grab';
+    if (hit) showTooltip(hit, sx, sy); else hideTooltip();
+  }
+  pointer.lastX = sx; pointer.lastY = sy;
+});
+function endPointer(e) {
+  activePointers.delete(e.pointerId);
+  try { wrap.releasePointerCapture(e.pointerId); } catch (err) {}
+
+  if (activePointers.size >= 2) { const pts = [...activePointers.values()]; pinch = { prevDist: ptDist(pts[0], pts[1]), prevMid: ptMid(pts[0], pts[1]) }; return; }
+  pinch = null;
+
+  if (activePointers.size === 1) {
+    const remaining = [...activePointers.values()][0];
+    pointer.dragging = null; tapCandidate = null; pointer.panning = true;
+    pointer.lastX = remaining.x; pointer.lastY = remaining.y;
+    return;
+  }
+  // no pointers left — resolve tap vs drag/pan
+  if (tapCandidate && tapCandidate.node) {
+    const moved = Math.hypot((pointer.lastX ?? tapCandidate.startX) - tapCandidate.startX, (pointer.lastY ?? tapCandidate.startY) - tapCandidate.startY);
+    if (moved < 10) selectNode(tapCandidate.node);
+  }
+  if (pointer.dragging) pointer.dragging.fixed = false;
+  pointer.dragging = null; pointer.panning = false; tapCandidate = null;
+  if (wrap) wrap.style.cursor = 'grab';
+}
+window.addEventListener('pointerup', endPointer);
+window.addEventListener('pointercancel', endPointer);
+wrap.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = wrap.getBoundingClientRect(); const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+  const before = screenToWorld(sx, sy);
+  const factor = Math.exp(-e.deltaY * 0.0012);
+  transform.scale = Math.min(3, Math.max(0.35, transform.scale * factor));
+  const after = screenToWorld(sx, sy);
+  transform.x += (after.x - before.x) * transform.scale; transform.y += (after.y - before.y) * transform.scale;
+}, { passive: false });
+
+function showTooltip(node, sx, sy) {
+  tooltip.querySelector('.tt-title').textContent = PAGES[node.id].title;
+  tooltip.querySelector('.tt-en').textContent = node.en;
+  tooltip.querySelector('.tt-desc').textContent = node.desc;
+  tooltip.style.opacity = '1';
+  tooltip.style.transform = `translate(${sx + 16}px, ${sy + 12}px)`;
+}
+function hideTooltip() { tooltip.style.opacity = '0'; }
+
+function selectNode(node) {
+  selectedId = node.id;
+  document.getElementById('sp-hub').textContent = node.isHub ? 'Hub' : 'Leaf';
+  document.getElementById('sp-label').textContent = PAGES[node.id].title;
+  document.getElementById('sp-en').textContent = node.en;
+  document.getElementById('sp-desc').textContent = node.desc;
+  const appearsIn = (PAGES[node.id] && PAGES[node.id].appears_in) || [];
+  document.getElementById('sp-modules').innerHTML = appearsIn.map(m => {
+    const url = MODULE_URLS[m];
+    return url ? `<a class="pill appears" href="${url}" target="_blank" rel="noopener">${m} ↗</a>` : `<span class="pill appears">${m}</span>`;
+  }).join('');
+  document.getElementById('sp-degree').textContent = node.degree + ' connections';
+  document.getElementById('sp-open').onclick = () => showReaderWithPage(node.id);
+  sidePanel.classList.add('open');
+}
+function closeSidePanel() { sidePanel.classList.remove('open'); }
+
+function setMode(mode) {
+  currentMode = mode; renderModeBtns();
+  if (mode === 'linear') computeLinearLayout();
+  if (mode === 'force') { settled = false; settleFrames = 130; nodeList.forEach(n => { n.vx = 0; n.vy = 0; }); }
+}
+
+function tick() {
+  if (currentMode !== 'force') {
+    nodeList.forEach(n => { if (n.fixed || n.tx === undefined) return; n.x += (n.tx - n.x) * 0.09; n.y += (n.ty - n.y) * 0.09; });
+    return;
+  }
+  if (settled) return;
+  settleFrames -= 1;
+  if (settleFrames <= 0) { settled = true; nodeList.forEach(n => { n.vx = 0; n.vy = 0; }); return; }
+  for (let i = 0; i < nodeList.length; i++) {
+    const a = nodeList[i]; if (a.fixed) continue;
+    let fx = -a.x * 0.0012, fy = -a.y * 0.0012;
+    for (let j = 0; j < nodeList.length; j++) {
+      if (i === j) continue;
+      const b = nodeList[j];
+      let dx = a.x - b.x, dy = a.y - b.y; let d2 = dx*dx + dy*dy; if (d2 < 1) d2 = 1;
+      const f = 5400 / d2; const d = Math.sqrt(d2);
+      fx += (dx / d) * f; fy += (dy / d) * f;
+    }
+    a.vx = (a.vx + fx) * 0.82; a.vy = (a.vy + fy) * 0.82;
+  }
+  edges.forEach(({ a, b, weight }) => {
+    const rest = 210 - weight * 12;
+    let dx = b.x - a.x, dy = b.y - a.y; const d = Math.sqrt(dx*dx + dy*dy) || 1;
+    const force = (d - rest) * 0.02; const fx = (dx / d) * force, fy = (dy / d) * force;
+    if (!a.fixed) { a.vx += fx; a.vy += fy; } if (!b.fixed) { b.vx -= fx; b.vy -= fy; }
+  });
+  nodeList.forEach(n => { if (!n.fixed) { n.x += n.vx; n.y += n.vy; } });
+}
+
+function draw() {
+  if (!wrap) return;
+  ctx.clearRect(0, 0, cw, ch);
+  ctx.save(); ctx.translate(transform.x, transform.y); ctx.scale(transform.scale, transform.scale);
+  const gold = '#96660f', ink = '#241f14';
+  const hoveredNode = hoveredId ? nodeById[hoveredId] : null;
+  const connected = hoveredNode ? adjacency[hoveredNode.id] : null;
+
+  edges.forEach(({ a, b, type, weight }) => {
+    const touches = hoveredNode && (a.id === hoveredNode.id || b.id === hoveredNode.id);
+    const dimmed = hoveredNode && !touches;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    ctx.lineWidth = (1 + weight * (type === 'direct' ? 1.1 : 0.7) * (touches ? 1.6 : 1)) / transform.scale;
+    const baseAlpha = type === 'direct' ? 0.78 : 0.42;
+    const alpha = dimmed ? baseAlpha * 0.12 : (touches ? Math.min(1, baseAlpha + 0.2) : baseAlpha);
+    ctx.strokeStyle = `rgba(150,102,15,${alpha})`;
+    ctx.setLineDash(type === 'direct' ? [] : [7 / transform.scale, 6 / transform.scale]);
+    ctx.stroke(); ctx.setLineDash([]);
+    if (type === 'direct') {
+      const rb = radiusOf(b) + 2; const dx = b.x - a.x, dy = b.y - a.y; const d = Math.sqrt(dx*dx+dy*dy) || 1;
+      const ux = dx / d, uy = dy / d; const tipX = b.x - ux * rb, tipY = b.y - uy * rb;
+      const sz = 5.5 / transform.scale; const perpX = -uy, perpY = ux;
+      ctx.beginPath(); ctx.moveTo(tipX, tipY);
+      ctx.lineTo(tipX - ux*sz + perpX*sz*0.55, tipY - uy*sz + perpY*sz*0.55);
+      ctx.lineTo(tipX - ux*sz - perpX*sz*0.55, tipY - uy*sz - perpY*sz*0.55);
+      ctx.closePath();
+      ctx.fillStyle = dimmed ? 'rgba(150,102,15,0.09)' : (touches ? 'rgba(150,102,15,0.95)' : 'rgba(150,102,15,0.78)');
+      ctx.fill();
+    }
+  });
+
+  const occupied = [];
+  const ordered = [...nodeList].sort((x, y) => (y.isHub - x.isHub) || (y.degree - x.degree));
+  ordered.forEach(n => {
+    const r = radiusOf(n);
+    const isHovered = hoveredId === n.id, isSelected = selectedId === n.id;
+    const isDimmed = hoveredNode && !isHovered && !(connected && connected.has(n.id));
+    ctx.globalAlpha = isDimmed ? 0.25 : 1;
+    const fillColor = tierColor(n);
+    if (n.isHub) {
+      const glow = ctx.createRadialGradient(n.x, n.y, r*0.2, n.x, n.y, r*2.1);
+      glow.addColorStop(0, 'rgba(150,102,15,0.35)'); glow.addColorStop(1, 'rgba(150,102,15,0)');
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(n.x, n.y, r*2.1, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI*2);
+    ctx.fillStyle = fillColor; ctx.fill();
+    ctx.lineWidth = (n.isHub ? 2 : 1) / transform.scale;
+    ctx.strokeStyle = isHovered || isSelected ? '#5c3f0a' : gold; ctx.stroke();
+
+    const showLabel = labelMode === 'all' || n.isHub || n.degree > LABEL_THRESHOLD || isHovered || isSelected;
+    if (!showLabel) { ctx.globalAlpha = 1; return; }
+    const fontSize = (n.isHub ? 14 : 12) / transform.scale;
+    ctx.font = `${n.isHub ? '700' : '400'} ${fontSize}px Georgia, 'Palatino Linotype', serif`;
+    const label = PAGES[n.id].title;
+    const tw = ctx.measureText(label).width;
+    const lx = n.x, ly = n.y + r + fontSize + 4 / transform.scale;
+    const rect = { x: lx - tw/2 - 4, y: ly - fontSize, w: tw + 8, h: fontSize + 6 };
+    if (labelMode !== 'all' && !n.isHub && !isHovered && !isSelected) {
+      const overlaps = occupied.some(o => !(rect.x+rect.w < o.x || rect.x > o.x+o.w || rect.y+rect.h < o.y || rect.y > o.y+o.h));
+      if (overlaps) { ctx.globalAlpha = 1; return; }
+    }
+    occupied.push(rect);
+    ctx.lineWidth = 4 / transform.scale; ctx.strokeStyle = 'rgba(248,244,234,0.88)';
+    ctx.textAlign = 'center'; ctx.strokeText(label, lx, ly);
+    ctx.fillStyle = n.isHub ? ink : '#4a3f2a'; ctx.fillText(label, lx, ly);
+    ctx.globalAlpha = 1;
+  });
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+resizeCanvas();
+function loop() { tick(); draw(); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

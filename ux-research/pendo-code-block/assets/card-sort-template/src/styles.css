@@ -1,0 +1,213 @@
+/* Paste into Pendo's Code Block CSS tab. Scoped under .cs- to avoid
+   colliding with the host page's styles (the sandbox is same-document for
+   CSS, unlike the JS execution context). */
+
+.cs-root {
+  --cs-bg: #f7f7f5;
+  --cs-panel: #ffffff;
+  --cs-border: #e4e4e0;
+  --cs-text: #1f2421;
+  --cs-text-muted: #6b6f6d;
+  --cs-accent: #3e63dd;
+  --cs-accent-hover: #2f4fc0;
+  --cs-accent-bg: #ecf0ff;
+  --cs-radius: 10px;
+  --cs-gap: 12px;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--cs-text);
+  background: var(--cs-bg);
+  border-radius: var(--cs-radius);
+  padding: 16px;
+  box-sizing: border-box;
+
+  /* Fixed height standing in for the guide iframe's real bounds. Both
+     panels stretch to fill it and scroll internally instead of growing
+     the page, since the pool and category lists live in the same iframe
+     as everything else in the guide. Adjust to match the real guide. */
+  height: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cs-root * { box-sizing: border-box; }
+
+.cs-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.cs-panel {
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cs-pool-panel {
+  flex: 0 0 220px;
+}
+
+.cs-panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 10px;
+}
+
+.cs-pool-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cs-categories-panel {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+}
+
+.cs-category {
+  flex: 0 0 200px;
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cs-category-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cs-category-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cs-text);
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.cs-category-label:hover,
+.cs-category-label:focus {
+  background: var(--cs-accent-bg);
+  color: var(--cs-accent);
+  outline: none;
+}
+
+.cs-category-label-input {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cs-text);
+  border: 1px solid var(--cs-accent);
+  border-radius: 4px;
+  padding: 1px 4px;
+  width: 100%;
+  font-family: inherit;
+}
+
+.cs-category-count {
+  font-size: 12px;
+  color: var(--cs-text-muted);
+}
+
+.cs-category-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cs-category-body.cs-drop-hover,
+.cs-pool-list.cs-drop-hover {
+  background: var(--cs-accent-bg);
+  outline: 2px dashed var(--cs-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.cs-card {
+  background: var(--cs-panel);
+  border: 1px solid var(--cs-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: grab;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.cs-card:active { cursor: grabbing; }
+
+.cs-card.cs-dragging { opacity: 0.4; }
+
+.cs-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cs-btn-primary {
+  background: var(--cs-accent);
+  color: #fff;
+}
+
+.cs-btn-primary:hover { background: var(--cs-accent-hover); }
+
+.cs-btn-primary:disabled {
+  background: var(--cs-border);
+  color: var(--cs-text-muted);
+  cursor: not-allowed;
+}
+
+.cs-btn-secondary {
+  background: transparent;
+  color: var(--cs-text-muted);
+  border: 1px solid var(--cs-border);
+}
+
+.cs-footer {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cs-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cs-footer-left input {
+  border: 1px solid var(--cs-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
