@@ -50,8 +50,8 @@ npx github:minw147/my-claude-skills eye-tracking-analysis pendo-code-block
 npx github:minw147/my-claude-skills ux-research
 ```
 
-Re-run the same command any time to pull the latest version — it overwrites the matching skill folders in place. Note: this repo is currently **private**, so `npx github:...` only works for accounts with access to it (via `git`'s normal auth) — make the repo public if you want others outside your account to run it.
+Re-run the same command any time to pull the latest version — it overwrites the matching skill folders in place.
 
 ---
 
-**License:** Personal use
+**License:** [MIT](LICENSE)
