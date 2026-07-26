@@ -1,11 +1,14 @@
 # MISSION.md Format
 
-Lives at the workspace root. Captures why the user is exploring this topic. Adapted from `/teach`'s format with one addition: an optional output-intent note, since Create Mode is in scope from the start here.
+Lives at the workspace root. Captures why the user is exploring this topic. Adapted from `/teach`'s format with two additions: a required mode, and an optional output-intent note, since Create Mode is in scope from the start here.
 
 ## Template
 
 ```md
 # Mission: {Topic}
+
+## Mode
+{Learn | Explain — see SKILL.md "Two modes". Set once at the mission interview; revise deliberately (with confirmation) if it turns out wrong, never silently.}
 
 ## Why
 {1-3 sentences. What's pulling the user toward this topic right now?}
@@ -27,6 +30,7 @@ Lives at the workspace root. Captures why the user is exploring this topic. Adap
 ## Rules
 
 - **One mission per workspace.** Two unrelated topics = two workspaces.
+- **Mode is required, unlike output-intent.** Ask directly if it isn't obvious from how the user framed the request ("are you exploring this to learn it, or do you already know it and want help explaining it?"). Don't guess and don't default to Learn Mode silently — the two modes run genuinely different loops (see SKILL.md).
 - **The output-intent note is genuinely optional and non-committal.** Don't interview for it — ask once, lightly, at the start, and accept "haven't decided" as a complete answer. It exists to give Create Mode something to work from later, not to force the user into a content-calendar mindset before they've explored anything.
 - **Concrete over abstract**, same as `/teach`: "make a 10-min video explaining why the Crusades backfired" beats "learn about the Crusades."
 - **Revise when reality shifts.** If the user's actual output intent changes mid-exploration, update this file — don't leave a stale note steering highlight selection later.

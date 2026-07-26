@@ -6,7 +6,7 @@ When recommending short-video vs blog vs long-video vs essay vs presentation, ju
 
 - **Narrative completeness**: do the confirmed highlights, strung together, already form a beginning/middle/end, or are they scattered points needing connective tissue?
 - **Density per highlight**: some single highlights carry enough weight to anchor an entire piece (a strong reframe); others are minor and need several stacked to mean anything.
-- **Branch coverage**: a long-video- or presentation-worthy piece usually draws on multiple graph branches (main track + at least one question-spawned or appendix branch), not just a single linear run of modules.
+- **Branch coverage** (Learn Mode): a long-video- or presentation-worthy piece usually draws on multiple graph branches (main track + at least one question-spawned or appendix branch), not just a single linear run of modules. (Explain Mode has no graph — judge equivalent breadth by whether the conversation covered more than one facet/sub-argument of the topic, not just a single narrow thread.)
 - **Who it's for**: the same material that's "thin" for a general-audience blog post might be exactly enough for a presentation to domain peers, who need less foundational setup and can absorb a denser, faster-paced argument. Judge sufficiency against the calibrated audience, not in the abstract.
 - **What the user is actually reaching for**: someone who says "help me make a short video" wants something snappy even if the material could support more — don't over-recommend length just because more material exists.
 

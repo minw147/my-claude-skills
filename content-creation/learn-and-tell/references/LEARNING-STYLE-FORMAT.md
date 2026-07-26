@@ -1,5 +1,7 @@
 # Learning Style Format
 
+**Learn Mode only.** Explain Mode has no learner to observe — the user already knows the material, so there's no "how does this person learn" question to answer. Don't create `learning-style.md` in an Explain Mode workspace.
+
 `learning-style.md` is a free-form, observation-based record of how this specific user thinks and explores. It is **not a questionnaire** — never interview the user to fill it in, never present these dimensions as a quiz or a self-assessment. Populate it only from what's actually observed during modules and problem-posing.
 
 Why not a fixed instrument: VARK-style "teach to the learner's stated style" is not well-supported by the evidence (repeatedly unreplicated), and asking the user to self-categorize before they've explored anything contradicts the mirror-not-judge stance the rest of this skill runs on — see `docs/adr/0004`.

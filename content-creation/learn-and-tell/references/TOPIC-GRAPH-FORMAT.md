@@ -1,5 +1,7 @@
 # Topic Graph Format
 
+**Learn Mode only** — Explain Mode has no modules to graph; its equivalent "where are we" state is the audience-ZPD tracking in `references/ZPD-ENGINE.md`.
+
 `TOPIC-GRAPH.json` is the source of truth for a workspace's Question-Annotated Topic Graph. `TOPIC-GRAPH.md` is derived from it — regenerate it every time the JSON changes; never hand-edit the `.md`.
 
 ## `TOPIC-GRAPH.json` schema
@@ -12,7 +14,6 @@
       "file": "modules/0001-timeline-skeleton.html",
       "title": "Timeline Skeleton",
       "status": "completed",
-      "no_question_streak": 0,
       "created": "2026-07-17T10:00:00Z"
     }
   ],
@@ -34,7 +35,6 @@
 - `id`: matches the module's numeric/lettered prefix (`0001`, `0004b`, ...)
 - `file`: relative path to the module HTML
 - `status`: `completed` | `in-progress` | `planned`
-- `no_question_streak`: consecutive modules ending with no user question — see SKILL.md step 5. Increment on no-question, reset to 0 the moment the user poses one.
 
 ### Edge types
 

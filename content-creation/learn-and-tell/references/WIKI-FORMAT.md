@@ -1,5 +1,7 @@
 # Wiki Format
 
+**Learn Mode only.** Explain Mode doesn't build a personal knowledge map — there's no accumulating understanding to index, and its "where are we" equivalent is the audience-ZPD tracking in `references/ZPD-ENGINE.md`. Don't create `./wiki/` in an Explain Mode workspace.
+
 `./wiki/` is a Karpathy-style LLM wiki layer (see [Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)) — a persistent, incrementally-maintained knowledge artifact, distinct from `TOPIC-GRAPH.json`:
 
 | | TOPIC-GRAPH.json | wiki/ |

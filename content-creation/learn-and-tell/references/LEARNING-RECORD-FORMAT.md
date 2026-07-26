@@ -1,5 +1,7 @@
 # Learning Record Format
 
+**Learn Mode only** — Explain Mode has no learner-side ZPD to steer (see `references/ZPD-ENGINE.md`); don't create `./learning-records/` there.
+
 Ported near-verbatim from `/teach` — this discipline isn't affected by the content-creator adaptation. Records live in `./learning-records/`, numbered `0001-slug.md`, `0002-slug.md`, etc. Create the directory lazily.
 
 They're the ADR-equivalent for a learner: non-obvious insights and stated prior knowledge that steer future modules and ZPD calibration.

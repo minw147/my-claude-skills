@@ -4,23 +4,24 @@ A highlight is a candidate or confirmed "aha moment" — raw material for an out
 
 ## Stage 1 — Candidate (silent)
 
-At the end of any module that produced a genuine insight (not routine coverage), draft a candidate highlight in the AI's own working notes. **Do not show this to the user, do not announce it, do not write it to disk.** This is not a file the user opens — it's material the AI is quietly accumulating for the moment Create Mode gets triggered.
+At the end of any module (Learn Mode) or exchange (Explain Mode) that produced a genuine insight (not routine coverage), draft a candidate highlight in the AI's own working notes. **Do not show this to the user, do not announce it, do not write it to disk.** This is not a file the user opens — it's material the AI is quietly accumulating for the moment Create Mode gets triggered.
 
-A candidate is worth drafting when the module produced something like:
+A candidate is worth drafting when the module/exchange produced something like:
 - A causal/necessity connection that wasn't obvious before ("the Crusades ultimately weakened the Byzantine Empire instead of strengthening it")
 - A cross-topic or cross-branch connection the user hadn't made
 - A genuine surprise or reframe, not just a new fact
+- (Explain Mode) A framing or explanation that only emerged *because* the AI's audience-perspective question pushed for it — the sharper version that came out of being asked to clarify
 
 Routine coverage of a fact, however true, is not a highlight. When in doubt, don't draft one — false positives dilute the eventual set more than missed ones.
 
-## Stage 2 — Confirmed (on Create Mode trigger)
+## Stage 2 — Confirmed (on Create Mode trigger) — hard gate, not optional
 
-When the user enters Create Mode, surface the relevant candidates (filtered to what's relevant to the topic/branch they want to produce from) and let them confirm or discard each one. Only confirmed highlights get written to `./highlights/`, one file per highlight:
+When the user enters Create Mode, surface the relevant candidates (filtered to what's relevant to the topic/branch they want to produce from) and let them confirm or discard each one. **Only confirmed highlights get written to `./highlights/`, one file per highlight, and this must happen before drafting starts** — going straight from "enter Create Mode" to a finished draft without this step actually having produced files on disk is skipping a required step, not a shortcut:
 
 ```md
 # <one-line summary>
 
-**From module**: 0004b-europe-track.html
+**From**: modules/0004b-europe-track.html (Learn Mode) — or a brief description of the exchange (Explain Mode), e.g. "the exchange where the AI asked why Confluence specifically, 2026-07-21"
 **Type**: causal-connection | reframe | cross-branch-link | surprise
 **Text**: <the actual insight, in the user's or a close paraphrase of their own framing>
 **Confirmed**: 2026-07-17
